@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" integrity="sha384-OHBBOqpYHNsIqQy8hL1U+8OXf9hH6QRxi0+EODezv82DfnZoV7qoHAZDwMwEJvSw" crossorigin="anonymous">
 
 <title>SEMB Toshiba @yield('title')</title> 
-<link rel="stylesheet" href='css/jquery.dataTables.css'>
+<link rel="stylesheet" href='//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css'>
 
 {{ Html::style('css/select2.min.css') }}
 {{ Html::style('css/vegas.css') }}
