@@ -99,6 +99,8 @@ class VendaController extends Controller
      */
     public function destroy(Venda $venda)
     {
-        //
+        $venda->delete();
+        Session::flash('success', 'Registro de venda deletado!');
+        return redirect('/vendas');
     }
 }

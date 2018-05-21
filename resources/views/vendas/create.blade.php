@@ -1,15 +1,17 @@
 @extends('main')
-
 @section('title', '| Venda de Produtos')
-
 @section('stylesheets')
 	{!! Html::style('css/parsley.css') !!}
 	{!! Html::style('css/select2.min.css') !!}
 @endsection
-
 @section('content')
-<h1>Venda de Produtos</h1>
-<hr>
+<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-md-10">
+				<div class="card">
+					<div class="card-header"><h1>Venda de Produtos</h1>
+					</div>
+					<div class="card-body">				
 {!! Form::open(array('enctype' => 'multipart/form-data'	, 'route' => 'vendas.store', 'data-parsley-validate' => '')) !!}
 	{{ Form::label('cliente', 'Cliente:') }}
 	<select class="form-control select2-multi" name="cliente">
@@ -48,6 +50,11 @@
 
 	{{ Form::submit('Vender', array('class' => 'form-control btn btn-success', 'style' => 'margin-top: 20px;')) }}
 {!! Form::close() !!}
+</div>
+</div>
+</div>
+</div>
+</div>
 @endsection
 
 

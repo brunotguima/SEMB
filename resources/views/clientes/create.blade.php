@@ -1,16 +1,17 @@
 @extends('main')
-
 @section('title', '| Cadastro de Clientes')
-
 @section('stylesheets')
 	{!! Html::style('css/parsley.css') !!}
 	{!! Html::style('css/select2.min.css') !!}
 @endsection
-
 @section('content')
-<h1>Cadastro de Clientes</h1>
-<hr>
-{!! Form::open(array('enctype' => 'multipart/form-data'	, 'route' => 'clientes.store', 'data-parsley-validate' => '')) !!}
+<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-md-10">
+				<div class="card">
+					<div class="card-header"><h1>Cadastro de Clientes</h1></div>
+					<div class="card-body">
+	{!! Form::open(array('enctype' => 'multipart/form-data'	, 'route' => 'clientes.store', 'data-parsley-validate' => '')) !!}
 	{{ Form::label('nome', 'Nome:') }}
 	{{ Form::text('nome', null, array('class' => 'form-control', 'required' => '', 'maxlength' => '255')) }}
 
@@ -21,7 +22,12 @@
 	{{ Form::text('telefone', null, array('class' => 'form-control', 'required' => '')) }}
 
 	{{ Form::submit('Cadastrar Cliente', array('class' => 'form-control btn btn-success', 'style' => 'margin-top: 20px;')) }}
-{!! Form::close() !!}
+	{!! Form::close() !!}
+</div>
+</div>
+</div>
+</div>
+</div>
 @endsection
 
 
