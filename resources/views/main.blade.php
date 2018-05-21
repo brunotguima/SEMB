@@ -4,7 +4,7 @@
     @include('partials._head')
   </head>
   
-  <body class="vegas-slider">
+  <body>
   
     @include('partials._nav')    
 
@@ -12,7 +12,6 @@
       @include('partials._messages')
 
       @yield('content')
-
     </div> <!-- end of .container --> 
         @include('partials._footer')
 

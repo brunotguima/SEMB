@@ -47,7 +47,7 @@ class ProdutoController extends Controller
         $foto = $request->file('foto');
         $filename = time() . '.' . $foto->getClientOriginalExtension();
         Image::make($foto)->resize(150,200)->save(public_path('/uploads/'. $filename));
-        $cliente->foto = $filename;
+        $produto->foto = $filename;
         $produto->save();
         Session::flash('success', "Produto cadastrado com sucesso!");
         return redirect()->route('produtos.index');

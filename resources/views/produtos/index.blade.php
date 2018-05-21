@@ -1,24 +1,22 @@
 @extends('main')
 @section('title', '| Lista de Produtos')
 @section('content')
-<a href="{{route('produtos.create')}}">Create</a>
-
-        <div class="col-md-12">
-            <h2>Listagem de Produtos:</h2>
+        <div class="col">
+            <h2>Listagem de Produtos: <a href="{{route('produtos.create')}}" class="btn btn-primary">Create</a></h2>
             <table id="produtos" class="table table-responsive table-hover">
                 <thead>
-                    <th>Id</th>
-                    <th>Codigo de Barras</th>
-                    <th>Nome</th>
-                    <th>Categoria</th>
-                    <th>Descrição</th>
-                    <th>foto</th>
-                    <th>preco</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Código</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Categoria</th>
+                    <th scope="col">Descrição</th>
+                    <th scope="col">Foto</th>
+                    <th scope="col">Preço</th>
                 </thead>
                 <tbody>
                     @foreach($produtos as $produto)
                     <tr>
-                        <td>{{$produto->id}}</td>
+                        <th scope="col">{{$produto->id}}</th>
                         <td>{{$produto->codBarras}}</td>
                         <td>{{$produto->nome}}</td>
                         <td>{{$produto->categoria_id}}</td>
@@ -40,4 +38,12 @@
        
     </div>
 
+@endsection
+
+@section('scripts')
+    {!! Html::script('js/jquery.dataTables.js') !!}
+
+    <script type="text/javascript">
+        $('#produtos').DataTable();
+    </script>
 @endsection

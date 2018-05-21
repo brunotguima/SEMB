@@ -1,7 +1,23 @@
 @if (Session::has('success'))
 	
 	<div class="alert alert-success" role="alert">
-		<strong>Success:</strong> {{ Session::get('success') }}
+		<strong>Sucesso:</strong> {{ Session::get('success') }}
+	</div>
+
+@endif
+
+@if (Session::has('danger'))
+	
+	<div class="alert alert-danger" role="alert">
+		<strong>Erro:</strong> {{ Session::get('danger') }}
+	</div>
+
+@endif
+
+@if (Session::has('warning'))
+	
+	<div class="alert alert-warning" role="alert">
+		<strong>Atenção:</strong> {{ Session::get('warning') }}
 	</div>
 
 @endif

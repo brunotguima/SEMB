@@ -1,36 +1,46 @@
-<!-- Default Bootstrap Navbar -->
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <a class="navbar-brand" href="/">SEMB Toshiba</a>
-    </div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 20px">
+  <a class="navbar-brand" href="#">SEMB Toshiba</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li class="{{ Request::is('home') ? "active" : "" }}"><a href="/home">Home</a></li>
-      </ul>
-      <li class="dropdown">
-          <a href="/" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="position:relative; padding-left:50px;">{{ Auth::user()->name }}
-          <img src="/uploads/avatars/{{ Auth::user()->avatar }}" style="width:40px; height:40px; position:absolute; top:5px; left:5px; border-radius:50%;">
-          <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="{{ url('/perfil') }}"><i class="fa fa-btn fa-user"></i>  Perfil</a></li>
-            <li>
-            <a href="{{ route('logout') }}"
-                 onclick="event.preventDefault();
-                 document.getElementById('logout-form').submit();"><i class="fa fa-btn fa-sign-out"></i>
-                 Logout
-            </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="get" style="display: none;">
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/clientes">Clientes</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/produtos">Produtos</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/vendas">Vendas</a>
+      </li>
+      <div class="dropdown-divider"></div>
+      @if(Auth::check())
+      <li class="nav-item">
+          <a class="nav-link" href="{{ route('logout') }}"
+            onclick="event.preventDefault();
+            document.getElementById('logout-form').submit();">
+            Logout
+          </a>
+          <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
             {{ csrf_field() }}
-            </form>
-            </li> 
-            </ul>
+          </form>
+      </li>
+      @else
+        </ul>
+        <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{{ route('login')}}">Login</a>
         </li>
-
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
+        <li class="nav-item">
+          <a class="nav-link" href="{{ route('register')}}">Registrar</a>
+        </li>
+        </ul>
+      @endif       
+    </ul>
+  </div>
 </nav>

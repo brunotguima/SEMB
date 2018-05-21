@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Cliente;
+use App\Venda;
 use Illuminate\Http\Request;
 use Image;
 use Session;
@@ -59,7 +60,8 @@ class ClienteController extends Controller
     public function show($id)
     {
         $cliente = Cliente::find($id);
-        return view('clientes.show', compact('cliente'));
+        $compras = Venda::all()->where('cliente_id', $cliente->id)->where('pago', 0);
+        return view('clientes.show', compact('cliente', 'compras'));
     }
 
     /**

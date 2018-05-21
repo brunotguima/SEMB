@@ -1,7 +1,5 @@
 <footer class="footer">
-      <hr>
-      <div class="container">
-        <center><span class="text-muted">Copyright ©2018 Bruno Guimarães e Matheus Oliveira - Todos os direitos reservados</span>
-        </center>
+      <div class="bg-dark">
+        <span class="text-muted"><p class="text-center">Copyright© Bruno Guimarães e Matheus Oliveira - Todos os Direitos Reservados</p></span>
       </div>
     </footer>
