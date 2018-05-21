@@ -24,7 +24,7 @@
                 <td scope="col">{{$produto->id}}</td>
                 <td>{{$produto->codBarras}}</td>
                 <td>{{$produto->nome}}</td>
-                <td>{{$produto->categoria_id}}</td>
+                <td>@foreach($categorias as $categoria) @if ($categoria->id == $produto->categoria_id) {{$categoria->nome}} @endif @endforeach<td>
                 <td>{{$produto->descricao}}</td>
                 <td>{{$produto->foto}}</td>
                 <td>{{$produto->preco}}</td>

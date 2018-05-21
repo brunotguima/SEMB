@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Session;
 use Image;
+use App\Categoria;
 
 class ProdutoController extends Controller
 {
@@ -18,7 +19,8 @@ class ProdutoController extends Controller
     public function index()
     {
         $produtos = Produto::all();
-        return view ('produtos.index',compact('produtos'));
+        $categorias = Categoria::all();
+        return view ('produtos.index',compact('produtos','categorias'));
     }
 
     /**
@@ -28,7 +30,8 @@ class ProdutoController extends Controller
      */
     public function create()
     {
-        return view('produtos.create');
+        $categorias = Categoria::all(); 
+        return view('produtos.create',compact('categorias'));
     }
 
     /**
@@ -41,6 +44,7 @@ class ProdutoController extends Controller
     {
         $produto = new Produto;
         $produto->nome = $request->nome;
+        $produto->categoria_id = $request->categoria;
         $produto->codBarras = $request->codBarras;
         $produto->descricao = $request->descricao;
         $produto->preco = $request->preco;

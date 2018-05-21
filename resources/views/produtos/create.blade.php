@@ -1,5 +1,9 @@
 @extends('main') 
-@section('title', '| Cadastrar um produto') 
+@section('title', '| Cadastrar um produto')
+@section('stylesheets')
+{!! Html::style('css/parsley.css') !!}
+{!! Html::style('css/select2.min.css') !!}
+@endsection 
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
@@ -12,7 +16,13 @@
                     {!! Form::open(['enctype' => 'multipart/form-data', 'route' => 'produtos.store','id' => 'createProdutos']) !!} 
                     {!! Form::token();!!} 
                     {!! Form::label('nome','Nome:') !!} 
-                    {!! Form::text('nome',null,['class' => 'form-control']) !!} 
+                    {!! Form::text('nome',null,['class' => 'form-control']) !!}
+                    {{ Form::label('categoria', 'Categoria:') }}
+                    <select class="form-control select2-multi" name="categoria">
+                        @foreach($categorias as $categoria)
+                            <option value='{{ $categoria->id }}'>{{ $categoria->nome }}</option>
+                        @endforeach
+                    </select> 
                     {!! Form::label('codBarras','Código de Barras:') !!} 
                     {!! Form::number('codBarras',null,['class' => 'form-control'])!!} {!! Form::label('descricao','Descrição:') !!} {!! Form::text('descricao',null,['class' => 'form-control'])!!} 
                     {!! Form::label('preco','Preço:') !!} 
