@@ -13,6 +13,6 @@ class Venda extends Model
 
     public function produto()
     {
-        return $this->hasMany('App\Produto');
+        return $this->belongsTo('App\Produto');
     }
 }

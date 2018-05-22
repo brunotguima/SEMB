@@ -17,6 +17,9 @@
             <th scope="col">Descrição</th>
             <th scope="col">Foto</th>
             <th scope="col">Preço</th>
+            <th></th>
+            <th></th>
+            <th></th>
         </thead>
         <tbody>
             @foreach($produtos as $produto)
@@ -55,9 +58,12 @@
 </div>
 </div>
 
-@endsection @section('scripts') {!! Html::script('js/jquery.dataTables.js') !!}
+@endsection
+
+@section('scripts')
+<script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+
 <script type="text/javascript">
-    $(document).ready(function () {
-        $('#produtos').DataTable();
-    });    
-</script> @endsection
+        $('#produtos').dataTable();
+</script>
+@endsection

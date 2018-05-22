@@ -15,6 +15,8 @@
             <th>Cliente</th>
             <th>Pago?</th>
             <th></th>
+            <th></th>
+            <th></th>
         </thead>
         <tbody>
             @foreach($vendas as $venda)
