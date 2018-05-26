@@ -48,10 +48,12 @@ class ProdutoController extends Controller
         $produto->codBarras = $request->codBarras;
         $produto->descricao = $request->descricao;
         $produto->preco = $request->preco;
+        if($request->file('foto') != null){
         $foto = $request->file('foto');
         $filename = time() . '.' . $foto->getClientOriginalExtension();
         Image::make($foto)->resize(150,200)->save(public_path('/uploads/'. $filename));
         $produto->foto = $filename;
+        }
         $produto->save();
         Session::flash('success', "Produto cadastrado com sucesso!");
         return redirect()->route('produtos.index');

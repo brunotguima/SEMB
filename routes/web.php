@@ -22,3 +22,4 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::resource('produtos','ProdutoController');
 Route::resource('clientes','ClienteController');
 Route::resource('vendas','VendaController');
+Route::resource('categorias','CategoriaController');

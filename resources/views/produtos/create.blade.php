@@ -26,9 +26,9 @@
                     {!! Form::label('codBarras','Código de Barras:') !!} 
                     {!! Form::number('codBarras',null,['class' => 'form-control'])!!} {!! Form::label('descricao','Descrição:') !!} {!! Form::text('descricao',null,['class' => 'form-control'])!!} 
                     {!! Form::label('preco','Preço:') !!} 
-                    {!! Form::number('preco',null,['class' => 'form-control'])!!} 
+                    {!! Form::number('preco',null,['class' => 'form-control','required'])!!} 
                     {!! Form::label('foto',null) !!}
-                    <input type="file" name="foto" class="form-control-file" required="required"> 
+                    <input type="file" name="foto" class="form-control-file"> 
                     {!! Form::submit('Cadastrar', array('class'=>'form-control btn btn-success', 'style' => 'margin-top:20px')) !!} 
                     {!! Form::close() !!}
                 </div>

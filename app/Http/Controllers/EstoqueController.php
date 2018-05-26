@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Categoria;
+use App\Estoque;
 use Illuminate\Http\Request;
-use Session;
 
-class CategoriaController extends Controller
+class EstoqueController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,8 +14,7 @@ class CategoriaController extends Controller
      */
     public function index()
     {
-        $categorias = Categoria::all();
-        return view('categorias.index', compact('categorias')); 
+        //
     }
 
     /**
@@ -26,7 +24,7 @@ class CategoriaController extends Controller
      */
     public function create()
     {
-        return view('categorias.create');
+        //
     }
 
     /**
@@ -37,20 +35,16 @@ class CategoriaController extends Controller
      */
     public function store(Request $request)
     {
-        $categorias = new Categoria();
-        $categorias->nome = $request->nome;
-        $categorias->save();
-        Session::flash('success', "Categoria cadastrada com sucesso!");
-        return redirect()->route('categorias.index');
+        //
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Categoria  $categoria
+     * @param  \App\Estoque  $estoque
      * @return \Illuminate\Http\Response
      */
-    public function show(Categoria $categoria)
+    public function show(Estoque $estoque)
     {
         //
     }
@@ -58,10 +52,10 @@ class CategoriaController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Categoria  $categoria
+     * @param  \App\Estoque  $estoque
      * @return \Illuminate\Http\Response
      */
-    public function edit(Categoria $categoria)
+    public function edit(Estoque $estoque)
     {
         //
     }
@@ -70,10 +64,10 @@ class CategoriaController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Categoria  $categoria
+     * @param  \App\Estoque  $estoque
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Categoria $categoria)
+    public function update(Request $request, Estoque $estoque)
     {
         //
     }
@@ -81,15 +75,11 @@ class CategoriaController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Categoria  $categoria
+     * @param  \App\Estoque  $estoque
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Categoria $categoria)
+    public function destroy(Estoque $estoque)
     {
-        $categoria->delete();
-        
-                Session::flash('success', 'Categoria deletada com sucesso!');
-        
-                return redirect('/categorias');
+        //
     }
 }

@@ -16,10 +16,10 @@
 	{{ Form::text('nome', null, array('class' => 'form-control', 'required' => '', 'maxlength' => '255')) }}
 
 	{{ Form::label('foto', 'Foto:') }}
-	<input type="file" name="foto" class="form-control-file" required="required">
+	<input type="file" name="foto" class="form-control-file">
 
 	{{ Form::label('telefone', "Telefone:") }}
-	{{ Form::text('telefone', null, array('class' => 'form-control', 'required' => '')) }}
+	{{ Form::text('telefone', null, array('class' => 'form-control')) }}
 
 	{{ Form::submit('Cadastrar Cliente', array('class' => 'form-control btn btn-success', 'style' => 'margin-top: 20px;')) }}
 	{!! Form::close() !!}

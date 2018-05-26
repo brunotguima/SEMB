@@ -17,8 +17,8 @@ class CreateProdutosTable extends Migration
             $table->increments('id');
             $table->double('codBarras')->unique(); 
             $table->string('nome');
-            $table->string('descricao');
-            $table->string('foto');
+            $table->string('descricao')->nullable();
+            $table->string('foto')->nullable();
             $table->double('preco');
             $table->integer('categoria_id')->unsigned();
             $table->foreign('categoria_id')->references('id')->on('categorias');

@@ -15,4 +15,12 @@ class Produto extends Model
         return $this->hasMany('App\Venda');
     }
 
+    public function estoque(){
+        return $this->belongsTo('App\Estoque');
+    }
+
+    public function categoria(){
+        return $this->belongsTo('App\Categoria');
+    }
+
 }

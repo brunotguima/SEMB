@@ -41,11 +41,13 @@ class ClienteController extends Controller
     {
         $cliente = new Cliente();
         $cliente->nome = $request->nome;
+        if($request->file('foto') != null){
         $foto = $request->file('foto');
         $filename = time() . '.' . $foto->getClientOriginalExtension();
         Image::make($foto)->resize(150,200)->save(public_path('/uploads/'. $filename));
         $cliente->foto = $filename;
-        $cliente->telefone = $request->telefone;
+        }
+        if($request->telefone == null){$cliente->telefone = "-";}else{$cliente->telefone = $request->telefone;} 
         $cliente->save();
         Session::flash('success', "Cliente cadastrado com sucesso!");
         return redirect()->route('clientes.index');
