@@ -1,5 +1,5 @@
 /*!
- * WebCodeCamJQuery 2.5.0 jQuery plugin Bar code and QR code decoder
+ * WebCodeCamJQuery 2.7.0 jQuery plugin Bar code and QR code decoder
  * Author: Tóth András
  * Web: http://atandrastoth.co.uk
  * email: atandrastoth@gmail.com
@@ -35,11 +35,11 @@
         localStream = null,
         defaults = {
             decodeQRCodeRate: 5,
-            decodeBarCodeRate: 3,
+            decodeBarCodeRate: 5,
             successTimeout: 500,
             codeRepetition: true,
             tryVertical: true,
-            frameRate: 15,
+            frameRate: 25,
             width: 320,
             height: 240,
             constraints: {
@@ -56,13 +56,13 @@
             },
             flipVertical: false,
             flipHorizontal: false,
-            zoom: 0,
+            zoom: -1,
             beep: 'audio/beep.mp3',
             decoderWorker: 'js/DecoderWorker.js',
             brightness: 0,
             autoBrightnessValue: 0,
             grayScale: 0,
-            contrast: 0,
+            contrast: 10,
             threshold: 0,
             sharpness: [],
             resultFunction: function(res) {
@@ -459,17 +459,29 @@
         if (videoSelect && videoSelect.children().length !== 0) {
             switch (videoSelect.val().toString()) {
                 case 'true':
-                    constraints.video.optional = [{
-                        sourceId: true
-                    }];
+                    if (navigator.userAgent.search("Edge") == -1 && navigator.userAgent.search("Chrome") != -1) {
+                        constraints.video.optional = [{
+                            sourceId: true
+                        }];
+                    } else {
+                        constraints.video.deviceId = undefined;  
+                    }
                     break;
                 case 'false':
                     constraints.video = false;
                     break;
                 default:
-                    constraints.video.optional = [{
-                        sourceId: videoSelect.val()
-                    }];
+                    if (navigator.userAgent.search("Edge") == -1 && navigator.userAgent.search("Chrome") != -1) {
+                        constraints.video.optional = [{
+                            sourceId: videoSelect.val()
+                        }];
+                    } else if (navigator.userAgent.search("Firefox") != -1) {
+                        constraints.video.deviceId = {
+                            exact: videoSelect.val()
+                        };
+                    } else {
+                         constraints.video.deviceId = videoSelect.val();
+                    }
                     break;
             }
         }

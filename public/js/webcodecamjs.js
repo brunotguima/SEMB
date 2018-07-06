@@ -1,5 +1,5 @@
 /*!
- * WebCodeCamJS 2.5.0 javascript Bar code and QR code decoder 
+ * WebCodeCamJS 2.7.0 javascript Bar code and QR code decoder 
  * Author: Tóth András
  * Web: http://atandrastoth.co.uk
  * email: atandrastoth@gmail.com
@@ -9,7 +9,7 @@ var WebCodeCamJS = function(element) {
     'use strict';
     this.Version = {
         name: 'WebCodeCamJS',
-        version: '2.5.0',
+        version: '2.7.0',
         author: 'Tóth András',
     };
     var mediaDevices = window.navigator.mediaDevices;
@@ -29,22 +29,22 @@ var WebCodeCamJS = function(element) {
     };
     var videoSelect, lastImageSrc, con, beepSound, w, h, lastCode;
     var display = Q(element),
-        DecodeWorker = null,
+        DecodeWorker = 1,
         video = html('<video muted autoplay></video>'),
         sucessLocalDecode = false,
         localImage = false,
         flipMode = [1, 3, 6, 8],
         isStreaming = false,
-        delayBool = true,
+        delayBool = false,
         initialized = false,
         localStream = null,
         options = {
             decodeQRCodeRate: 5,
-            decodeBarCodeRate: 3,
-            successTimeout: 1500,
+            decodeBarCodeRate: 5,
+            successTimeout: 500,
             codeRepetition: true,
             tryVertical: true,
-            frameRate: 15,
+            frameRate: 25,
             width: 320,
             height: 240,
             constraints: {
@@ -57,17 +57,17 @@ var WebCodeCamJS = function(element) {
                         sourceId: true
                     }]
                 },
-                audio: false
+                audio: true
             },
             flipVertical: false,
             flipHorizontal: false,
-            zoom: 0,
-            beep: '/audio//beep.mp3',
-            decoderWorker: '/js//DecoderWorker.js',
+            zoom: -1,
+            beep: '/audio/beep.mp3',
+            decoderWorker: '/js/DecoderWorker.js',
             brightness: 0,
             autoBrightnessValue: 0,
             grayScale: 0,
-            contrast: 0,
+            contrast: 10,
             threshold: 0,
             sharpness: [],
             resultFunction: function(res) {
@@ -450,17 +450,29 @@ var WebCodeCamJS = function(element) {
         if (videoSelect && videoSelect.length !== 0) {
             switch (videoSelect[videoSelect.selectedIndex].value.toString()) {
                 case 'true':
-                    constraints.video.optional = [{
-                        sourceId: true
-                    }];
+                    if (navigator.userAgent.search("Edge") == -1 && navigator.userAgent.search("Chrome") != -1) {
+                        constraints.video.optional = [{
+                            sourceId: true
+                        }];
+                    } else {
+                        constraints.video.deviceId = undefined;  
+                    }
                     break;
                 case 'false':
                     constraints.video = false;
                     break;
                 default:
-                    constraints.video.optional = [{
-                        sourceId: videoSelect[videoSelect.selectedIndex].value
-                    }];
+                    if (navigator.userAgent.search("Edge") == -1 && navigator.userAgent.search("Chrome") != -1) {
+                        constraints.video.optional = [{
+                            sourceId: videoSelect[videoSelect.selectedIndex].value
+                        }];
+                    } else if (navigator.userAgent.search("Firefox") != -1) {
+                        constraints.video.deviceId = {
+                            exact: videoSelect[videoSelect.selectedIndex].value
+                        };
+                    } else {
+                         constraints.video.deviceId = videoSelect[videoSelect.selectedIndex].value;
+                    }
                     break;
             }
         }

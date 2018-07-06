@@ -19,7 +19,8 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::resource('produtos','ProdutoController');
-Route::resource('clientes','ClienteController');
-Route::resource('vendas','VendaController');
-Route::resource('categorias','CategoriaController');
+Route::resource('produtos','ProdutoController')->middleware('auth');
+Route::resource('clientes','ClienteController')->middleware('auth');
+Route::resource('vendas','VendaController')->middleware('auth');
+Route::resource('categorias','CategoriaController')->middleware('auth');
+Route::resource('estoque','EstoqueController')->middleware('auth');

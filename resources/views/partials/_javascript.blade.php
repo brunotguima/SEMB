@@ -1,8 +1,6 @@
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 {!! Html::script('js/qrcodelib.js') !!}
-{!! Html::script('js/webcodecamjs.js') !!}
-{!! Html::script('js/qrcodelib.js') !!}
 {!! Html::script('js/filereader.js') !!}
 {!! Html::script('js/DecoderWorker.js') !!}
 {!! Html::script('fullcalendar/fullcalendar.js') !!}

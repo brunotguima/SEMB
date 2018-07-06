@@ -1,5 +1,5 @@
 /* --------------------------------------------------
-Javascript Only Barcode_Reader (JOB) V1.6 by Eddie Larsson <https://github.com/EddieLa/BarcodeReader>
+Javascript Only Barcode_Reader (BarcodeReader) V1.6 by Eddie Larsson <https://github.com/EddieLa/BarcodeReader>
 
 This software is provided under the MIT license, http://opensource.org/licenses/MIT.
 All use of this software must include this
@@ -30,10 +30,11 @@ THE SOFTWARE.
 ------------------------ */
 function Rotate(data, width, height, rotation) {
     var newData = [];
+    var x, y;
     switch (rotation) {
         case 90:
-            for (var x = 0; x < width * 4; x += 4) {
-                for (var y = width * 4 * (height - 1); y >= 0; y -= width * 4) {
+            for (x = 0; x < width * 4; x += 4) {
+                for (y = width * 4 * (height - 1); y >= 0; y -= width * 4) {
                     newData.push(data[x + y]);
                     newData.push(data[x + y + 1]);
                     newData.push(data[x + y + 2]);
@@ -42,8 +43,8 @@ function Rotate(data, width, height, rotation) {
             }
             break;
         case -90:
-            for (var x = width * 4 - 4; x >= 0; x -= 4) {
-                for (var y = 0; y < data.length; y += width * 4) {
+            for (x = width * 4 - 4; x >= 0; x -= 4) {
+                for (y = 0; y < data.length; y += width * 4) {
                     newData.push(data[x + y]);
                     newData.push(data[x + y + 1]);
                     newData.push(data[x + y + 2]);
@@ -52,8 +53,8 @@ function Rotate(data, width, height, rotation) {
             }
             break;
         case 180:
-            for (var y = width * 4 * (height - 1); y >= 0; y -= width * 4) {
-                for (var x = width * 4 - 4; x >= 0; x -= 4) {
+            for (y = width * 4 * (height - 1); y >= 0; y -= width * 4) {
+                for (x = width * 4 - 4; x >= 0; x -= 4) {
                     newData.push(data[x + y]);
                     newData.push(data[x + y + 1]);
                     newData.push(data[x + y + 2]);
@@ -67,44 +68,46 @@ function Rotate(data, width, height, rotation) {
 function BoxFilter(data, width, radius) {
     var elements = [];
     var sum = [];
-    for (var x = 0; x < width; x++) {
+    var val;
+    var x, y, i;
+    for (x = 0; x < width; x++) {
         elements.push([]);
         sum.push(0);
-        for (var y = 0; y < (radius + 1) * width; y += width) {
+        for (y = 0; y < (radius + 1) * width; y += width) {
             elements[elements.length - 1].push(data[x + y]);
             sum[sum.length - 1] = sum[sum.length - 1] + data[x + y];
         }
     }
     var newData = [];
-    for (var y = 0; y < data.length; y += width) {
-        for (var x = 0; x < width; x++) {
+    for (y = 0; y < data.length; y += width) {
+        for (x = 0; x < width; x++) {
             var newVal = 0;
             var length = 0;
-            for (var i = x; i >= 0; i--) {
+            for (i = x; i >= 0; i--) {
                 newVal += sum[i];
                 length++;
-                if (length == radius + 1) break;
+                if (length === radius + 1) break;
             }
             var tempLength = 0;
-            for (var i = x + 1; i < width; i++) {
+            for (i = x + 1; i < width; i++) {
                 newVal += sum[i];
                 length++;
                 tempLength++;
-                if (tempLength == radius) break;
+                if (tempLength === radius) break;
             }
             length *= elements[0].length;
             newVal /= length;
             newData.push(newVal);
         }
         if (y - radius * width >= 0) {
-            for (var i = 0; i < elements.length; i++) {
-                var val = elements[i].shift();
+            for (i = 0; i < elements.length; i++) {
+                val = elements[i].shift();
                 sum[i] = sum[i] - val;
             }
         }
         if (y + (radius + 1) * width < data.length) {
-            for (var i = 0; i < elements.length; i++) {
-                var val = data[i + y + (radius + 1) * width];
+            for (i = 0; i < elements.length; i++) {
+                val = data[i + y + (radius + 1) * width];
                 elements[i].push(val);
                 sum[i] = sum[i] + val;
             }
@@ -115,8 +118,9 @@ function BoxFilter(data, width, radius) {
 
 function Scale(data, width, height) {
     var newData = [];
-    for (var y = 0; y < data.length; y += width * 8) {
-        for (var x = 0; x < width * 4; x += 8) {
+    var x, y;
+    for (y = 0; y < data.length; y += width * 8) {
+        for (x = 0; x < width * 4; x += 8) {
             var r = (data[y + x] + data[y + x + 4] + data[y + width * 4 + x] + data[y + width * 4 + x + 4]) / 4;
             newData.push(r);
             var g = (data[y + x + 1] + data[y + x + 4 + 1] + data[y + width * 4 + x + 1] + data[y + width * 4 + x + 4 + 1]) / 4;
@@ -133,11 +137,12 @@ function IntensityGradient(data, width) {
     var newData = [];
     var max = Number.MIN_VALUE;
     var min = Number.MAX_VALUE;
-    for (var y = 0; y < data.length; y += width * 4) {
-        for (var x = 0; x < width * 4; x += 4) {
+    var x, y, i;
+    for (y = 0; y < data.length; y += width * 4) {
+        for (x = 0; x < width * 4; x += 4) {
             var horizontalDiff = 0;
             var verticalDiff = 0;
-            for (var i = 1; i < 2; i++) {
+            for (i = 1; i < 2; i++) {
                 if (x + i * 4 < width * 4) {
                     horizontalDiff = horizontalDiff + Math.abs(data[y + x] - data[y + x + i * 4]);
                 }
@@ -152,7 +157,7 @@ function IntensityGradient(data, width) {
         }
     }
     if (min < 0) {
-        for (var i = 0; i < newData.length; i++) {
+        for (i = 0; i < newData.length; i++) {
             newData[i] = newData[i] - min;
         }
         min = 0;
@@ -161,7 +166,8 @@ function IntensityGradient(data, width) {
 }
 
 function greyScale(data) {
-    for (var i = 0; i < data.length; i += 4) {
+    var i;
+    for (i = 0; i < data.length; i += 4) {
         var max = 0;
         var min = 255;
         max = data[i] > max ? data[i] : max;
@@ -175,19 +181,21 @@ function greyScale(data) {
 }
 
 function histogram(data) {
+    var i;
     var hist = [];
-    for (var i = 0; i < 256; i++) {
+    for (i = 0; i < 256; i++) {
         hist[i] = 0;
     }
-    for (var i = 0; i < data.length; i += 4) {
+    for (i = 0; i < data.length; i += 4) {
         hist[data[i]] = hist[data[i]] + 1;
     }
     return hist;
 }
 
 function otsu(histogram, total) {
+    var i;
     var sum = 0;
-    for (var i = 1; i < histogram.length; ++i) sum += i * histogram[i];
+    for (i = 1; i < histogram.length; ++i) sum += i * histogram[i];
     var sumB = 0;
     var wB = 0;
     var wF = 0;
@@ -197,11 +205,11 @@ function otsu(histogram, total) {
     var between = 0.0;
     var threshold1 = 0.0;
     var threshold2 = 0.0;
-    for (var i = 0; i < histogram.length; ++i) {
+    for (i = 0; i < histogram.length; ++i) {
         wB += histogram[i];
-        if (wB == 0) continue;
+        if (wB === 0) continue;
         wF = total - wB;
-        if (wF == 0) break;
+        if (wF === 0) break;
         sumB += i * histogram[i];
         mB = sumB / wB;
         mF = (sum - sumB) / wF;
@@ -220,69 +228,74 @@ function otsu(histogram, total) {
 function CreateImageData() {
     Image.data = new Uint8ClampedArray(Image.width * Image.height * 4);
     var Converter;
-    for (var y = 0; y < Image.height; y++) {
-        for (var x = 0; x < Image.width; x++) {
+    var x, y;
+    for (y = 0; y < Image.height; y++) {
+        for (x = 0; x < Image.width; x++) {
             Converter = y * 4 * Image.width;
             Image.data[Converter + x * 4] = Image.table[x][y][0];
             Image.data[Converter + x * 4 + 1] = Image.table[x][y][1];
             Image.data[Converter + x * 4 + 2] = Image.table[x][y][2];
             Image.data[Converter + x * 4 + 3] = Image.table[x][y][3];
-        };
-    };
-};
+        }
+    }
+}
 
 function CreateScanImageData() {
     ScanImage.data = new Uint8ClampedArray(ScanImage.width * ScanImage.height * 4);
     var Converter;
-    for (var y = 0; y < ScanImage.height; y++) {
-        for (var x = 0; x < ScanImage.width; x++) {
+    var x, y;
+    for (y = 0; y < ScanImage.height; y++) {
+        for (x = 0; x < ScanImage.width; x++) {
             Converter = y * 4 * ScanImage.width;
             ScanImage.data[Converter + x * 4] = ScanImage.table[x][y][0];
             ScanImage.data[Converter + x * 4 + 1] = ScanImage.table[x][y][1];
             ScanImage.data[Converter + x * 4 + 2] = ScanImage.table[x][y][2];
             ScanImage.data[Converter + x * 4 + 3] = ScanImage.table[x][y][3];
-        };
-    };
-};
+        }
+    }
+}
 
 function CreateTable() {
     Image.table = [];
     var tempArray = [];
-    for (var i = 0; i < Image.width * 4; i += 4) {
+    var i, j;
+    for (i = 0; i < Image.width * 4; i += 4) {
         tempArray = [];
-        for (var j = i; j < Image.data.length; j += Image.width * 4) {
+        for (j = i; j < Image.data.length; j += Image.width * 4) {
             tempArray.push([Image.data[j], Image.data[j + 1], Image.data[j + 2], Image.data[j + 3]]);
-        };
+        }
         Image.table.push(tempArray);
-    };
-};
+    }
+}
 
 function CreateScanTable() {
     ScanImage.table = [];
     var tempArray = [];
-    for (var i = 0; i < ScanImage.width * 4; i += 4) {
+    var i, j;
+    for (i = 0; i < ScanImage.width * 4; i += 4) {
         tempArray = [];
-        for (var j = i; j < ScanImage.data.length; j += ScanImage.width * 4) {
+        for (j = i; j < ScanImage.data.length; j += ScanImage.width * 4) {
             tempArray.push([ScanImage.data[j], ScanImage.data[j + 1], ScanImage.data[j + 2], ScanImage.data[j + 3]]);
-        };
+        }
         ScanImage.table.push(tempArray);
-    };
+    }
 }
 
 function EnlargeTable(h, w) {
     var TempArray = [];
-    for (var x = 0; x < Image.width; x++) {
+    var x, y, i;
+    for (x = 0; x < Image.width; x++) {
         TempArray = [];
-        for (var y = 0; y < Image.height; y++) {
-            for (var i = 0; i < h; i++) {
+        for (y = 0; y < Image.height; y++) {
+            for (i = 0; i < h; i++) {
                 TempArray.push(Image.table[x][y]);
             }
         }
         Image.table[x] = TempArray.slice();
     }
     TempArray = Image.table.slice();
-    for (var x = 0; x < Image.width; x++) {
-        for (var i = 0; i < w; i++) {
+    for (x = 0; x < Image.width; x++) {
+        for (i = 0; i < w; i++) {
             Image.table[x * w + i] = TempArray[x].slice();
         }
     }
@@ -296,12 +309,13 @@ function ScaleHeight(scale) {
     var avrgRed = 0;
     var avrgGreen = 0;
     var avrgBlue = 0;
-    for (var i = 0; i < Image.height - scale; i += scale) {
-        for (var j = 0; j < Image.width; j++) {
+    var i, j, k;
+    for (i = 0; i < Image.height - scale; i += scale) {
+        for (j = 0; j < Image.width; j++) {
             avrgRed = 0;
             avrgGreen = 0;
             avrgBlue = 0;
-            for (var k = i; k < i + scale; k++) {
+            for (k = i; k < i + scale; k++) {
                 avrgRed += Image.table[j][k][0];
                 avrgGreen += Image.table[j][k][1];
                 avrgBlue += Image.table[j][k][2];
@@ -322,6 +336,7 @@ function Intersects(rectOne, rectTwo) {
 function maxLocalization(max, maxPos, data) {
     var originalMax = max;
     var rects = [];
+    var x, y, i;
     do {
         var startX = maxPos % Image.width;
         var startY = (maxPos - startX) / Image.width;
@@ -329,32 +344,32 @@ function maxLocalization(max, maxPos, data) {
         var maxY = Image.height;
         var minX = 0;
         var maxX = Image.width - 1;
-        for (var y = startY; y < Image.height - 1; y++) {
-            if (Image.table[startX][y + 1][0] == 0) {
+        for (y = startY; y < Image.height - 1; y++) {
+            if (Image.table[startX][y + 1][0] === 0) {
                 maxY = y;
                 break;
             }
         }
-        for (var y = startY; y > 0; y--) {
-            if (Image.table[startX][y - 1][0] == 0) {
+        for (y = startY; y > 0; y--) {
+            if (Image.table[startX][y - 1][0] === 0) {
                 minY = y;
                 break;
             }
         }
-        for (var x = startX; x < Image.width - 1; x++) {
-            if (Image.table[x + 1][startY][0] == 0) {
+        for (x = startX; x < Image.width - 1; x++) {
+            if (Image.table[x + 1][startY][0] === 0) {
                 maxX = x;
                 break;
             }
         }
-        for (var x = startX; x > 0; x--) {
-            if (Image.table[x - 1][startY][0] == 0) {
+        for (x = startX; x > 0; x--) {
+            if (Image.table[x - 1][startY][0] === 0) {
                 minX = x;
                 break;
             }
         }
-        for (var y = minY * Image.width; y <= maxY * Image.width; y += Image.width) {
-            for (var x = minX; x <= maxX; x++) {
+        for (y = minY * Image.width; y <= maxY * Image.width; y += Image.width) {
+            for (x = minX; x <= maxX; x++) {
                 data[y + x] = 0;
             }
         }
@@ -362,7 +377,7 @@ function maxLocalization(max, maxPos, data) {
             [minX, maxX],
             [minY, maxY]
         ];
-        for (var i = 0; i < rects.length; i++) {
+        for (i = 0; i < rects.length; i++) {
             if (Intersects(newRect, rects[i])) {
                 if (rects[i][0][1] - rects[i][0][0] > newRect[0][1] - newRect[0][0]) {
                     rects[i][0][0] = rects[i][0][0] < newRect[0][0] ? rects[i][0][0] : newRect[0][0];
@@ -385,7 +400,7 @@ function maxLocalization(max, maxPos, data) {
         max = 0;
         maxPos = 0;
         var newMaxPos = 0;
-        for (var i = 0; i < data.length; i++) {
+        for (i = 0; i < data.length; i++) {
             if (data[i] > max) {
                 max = data[i];
                 maxPos = i;
@@ -400,13 +415,14 @@ function ImgProcessing() {
     var newData = IntensityGradient(Image.data, Image.width);
     newData = BoxFilter(newData, Image.width, 15);
     var min = newData[0];
-    for (var i = 1; i < newData.length; i++) {
+    var i, x, y;
+    for (i = 1; i < newData.length; i++) {
         min = min > newData[i] ? newData[i] : min;
     }
     var max = 0;
     var maxPos = 0;
     var avrgLight = 0;
-    for (var i = 0; i < newData.length; i++) {
+    for (i = 0; i < newData.length; i++) {
         newData[i] = Math.round((newData[i] - min));
         avrgLight += newData[i];
         if (max < newData[i]) {
@@ -418,12 +434,12 @@ function ImgProcessing() {
     if (avrgLight < 15) {
         newData = BoxFilter(newData, Image.width, 8);
         min = newData[0];
-        for (var i = 1; i < newData.length; i++) {
+        for (i = 1; i < newData.length; i++) {
             min = min > newData[i] ? newData[i] : min;
         }
         max = 0;
         maxPos = 0;
-        for (var i = 0; i < newData.length; i++) {
+        for (i = 0; i < newData.length; i++) {
             newData[i] = Math.round((newData[i] - min));
             if (max < newData[i]) {
                 max = newData[i];
@@ -432,14 +448,14 @@ function ImgProcessing() {
         }
     }
     var hist = [];
-    for (var i = 0; i <= max; i++) {
+    for (i = 0; i <= max; i++) {
         hist[i] = 0;
-    };
-    for (var i = 0; i < newData.length; i++) {
+    }
+    for (i = 0; i < newData.length; i++) {
         hist[newData[i]] = hist[newData[i]] + 1;
     }
     var thresh = otsu(hist, newData.length);
-    for (var i = 0; i < newData.length; i++) {
+    for (i = 0; i < newData.length; i++) {
         if (newData[i] < thresh) {
             Image.data[i * 4] = Image.data[i * 4 + 1] = Image.data[i * 4 + 2] = 0;
         } else {
@@ -449,7 +465,7 @@ function ImgProcessing() {
     CreateTable();
     var rects = maxLocalization(max, maxPos, newData);
     var feedBack = [];
-    for (var i = 0; i < rects.length; i++) {
+    for (i = 0; i < rects.length; i++) {
         feedBack.push({
             x: rects[i][0][0],
             y: rects[i][1][0],
@@ -462,11 +478,11 @@ function ImgProcessing() {
         success: "localization"
     });
     allTables = [];
-    for (var i = 0; i < rects.length; i++) {
+    for (i = 0; i < rects.length; i++) {
         var newTable = [];
-        for (var x = rects[i][0][0] * 2; x < rects[i][0][1] * 2; x++) {
+        for (x = rects[i][0][0] * 2; x < rects[i][0][1] * 2; x++) {
             var tempArray = [];
-            for (var y = rects[i][1][0] * 2; y < rects[i][1][1] * 2; y++) {
+            for (y = rects[i][1][0] * 2; y < rects[i][1][1] * 2; y++) {
                 tempArray.push([ScanImage.table[x][y][0], ScanImage.table[x][y][1], ScanImage.table[x][y][2], 255]);
             }
             newTable.push(tempArray);
@@ -497,7 +513,15 @@ function showImage(data, width, height) {
 function Main() {
     ImgProcessing();
     var allResults = [];
-    for (var z = 0; z < allTables.length; z++) {
+    var tempObj;
+    var tempData;
+    var hist;
+    var val;
+    var thresh;
+    var start;
+    var end;
+    var z, i;
+    for (z = 0; z < allTables.length; z++) {
         Image = allTables[z];
         var scaled = ScaleHeight(30);
         var variationData;
@@ -508,26 +532,26 @@ function Main() {
         var eanOrder = [];
         Selection = false;
         do {
-            var tempData = scaled.subarray(incrmt, incrmt + Image.width * 4);
-            var hist = [];
-            for (var i = 0; i < 256; i++) {
+            tempData = scaled.subarray(incrmt, incrmt + Image.width * 4);
+            hist = [];
+            for (i = 0; i < 256; i++) {
                 hist[i] = 0;
             }
-            for (var i = 0; i < tempData.length; i += 4) {
-                var val = Math.round((tempData[i] + tempData[i + 1] + tempData[i + 2]) / 3);
+            for (i = 0; i < tempData.length; i += 4) {
+                val = Math.round((tempData[i] + tempData[i + 1] + tempData[i + 2]) / 3);
                 hist[val] = hist[val] + 1;
             }
-            var thresh = otsu(hist, tempData.length / 4);
-            var start = thresh < 41 ? 1 : thresh - 40;
-            var end = thresh > 254 - 40 ? 254 : thresh + 40;
+            thresh = otsu(hist, tempData.length / 4);
+            start = thresh < 41 ? 1 : thresh - 40;
+            end = thresh > 254 - 40 ? 254 : thresh + 40;
             variationData = yStraighten(tempData, start, end);
             Selection = BinaryString(variationData);
             if (Selection.string) {
                 format = Selection.format;
-                var tempObj = Selection;
+                tempObj = Selection;
                 Selection = Selection.string;
-                if (format == "EAN-13") {
-                    if (typeof eanStatistics[Selection] == 'undefined') {
+                if (format === "EAN-13") {
+                    if (typeof eanStatistics[Selection] === 'undefined') {
                         eanStatistics[Selection] = {
                             count: 1,
                             correction: tempObj.correction
@@ -544,36 +568,36 @@ function Main() {
             }
             incrmt += Image.width * 4;
         } while (!Selection && incrmt < scaled.length);
-        if (Selection && format != "EAN-13") allResults.push({
+        if (Selection && format !== "EAN-13") allResults.push({
             Format: format,
             Value: Selection
         });
-        if (format == "EAN-13") Selection = false;
+        if (format === "EAN-13") Selection = false;
         if (!Selection) {
             EnlargeTable(4, 2);
             incrmt = 0;
             scaled = ScaleHeight(20);
             do {
-                var tempData = scaled.subarray(incrmt, incrmt + Image.width * 4);
-                var hist = [];
-                for (var i = 0; i < 256; i++) {
+                tempData = scaled.subarray(incrmt, incrmt + Image.width * 4);
+                hist = [];
+                for (i = 0; i < 256; i++) {
                     hist[i] = 0;
                 }
-                for (var i = 0; i < tempData.length; i += 4) {
-                    var val = Math.round((tempData[i] + tempData[i + 1] + tempData[i + 2]) / 3);
+                for (i = 0; i < tempData.length; i += 4) {
+                    val = Math.round((tempData[i] + tempData[i + 1] + tempData[i + 2]) / 3);
                     hist[val] = hist[val] + 1;
                 }
-                var thresh = otsu(hist, tempData.length / 4);
-                var start = thresh < 40 ? 0 : thresh - 40;
-                var end = thresh > 255 - 40 ? 255 : thresh + 40;
+                thresh = otsu(hist, tempData.length / 4);
+                start = thresh < 40 ? 0 : thresh - 40;
+                end = thresh > 255 - 40 ? 255 : thresh + 40;
                 variationData = yStraighten(tempData, start, end);
                 Selection = BinaryString(variationData);
                 if (Selection.string) {
                     format = Selection.format;
-                    var tempObj = Selection;
+                    tempObj = Selection;
                     Selection = Selection.string;
-                    if (format == "EAN-13") {
-                        if (typeof eanStatistics[Selection] == 'undefined') {
+                    if (format === "EAN-13") {
+                        if (typeof eanStatistics[Selection] === 'undefined') {
                             eanStatistics[Selection] = {
                                 count: 1,
                                 correction: tempObj.correction
@@ -590,7 +614,7 @@ function Main() {
                 }
                 incrmt += Image.width * 4;
             } while (!Selection && incrmt < scaled.length);
-            if (format == "EAN-13") {
+            if (format === "EAN-13") {
                 var points = {};
                 for (var key in eanStatistics) {
                     eanStatistics[key].correction = eanStatistics[key].correction / eanStatistics[key].count;
@@ -601,9 +625,9 @@ function Main() {
                 }
                 var minPoints = Number.POSITIVE_INFINITY;
                 var tempString = "";
-                for (var key in points) {
-                    if (points[key] < minPoints) {
-                        minPoints = points[key];
+                for (var point in points) {
+                    if (points[point] < minPoints) {
+                        minPoints = points[point];
                         tempString = key;
                     }
                 }
@@ -627,17 +651,18 @@ function yStraighten(img, start, end) {
     var average = 0;
     var threshold;
     var newImg = new Uint8ClampedArray(Image.width * (end - start + 1) * 4);
-    for (var i = 0; i < newImg.length; i++) {
+    var i, j;
+    for (i = 0; i < newImg.length; i++) {
         newImg[i] = 255;
     }
-    for (var i = 0; i < Image.width * 4; i += 4) {
+    for (i = 0; i < Image.width * 4; i += 4) {
         threshold = end;
         average = (img[i] + img[i + 1] + img[i + 2]) / 3;
         if (i < Image.width * 4 - 4) {
             average += (img[i + 4] + img[i + 5] + img[i + 6]) / 3;
             average /= 2;
         }
-        for (var j = i; j < newImg.length; j += Image.width * 4) {
+        for (j = i; j < newImg.length; j += Image.width * 4) {
             if (average < threshold) {
                 newImg[j] = newImg[j + 1] = newImg[j + 2] = 0;
             }
@@ -649,16 +674,17 @@ function yStraighten(img, start, end) {
 
 function CheckEan13(values, middle) {
     if (middle) {
-        if (values.length != 5) return false;
+        if (values.length !== 5) return false;
     } else {
-        if (values.length != 3) return false;
+        if (values.length !== 3) return false;
     }
     var avrg = 0;
-    for (var i = 0; i < values.length; i++) {
+    var i;
+    for (i = 0; i < values.length; i++) {
         avrg += values[i];
     }
     avrg /= values.length;
-    for (var i = 0; i < values.length; i++) {
+    for (i = 0; i < values.length; i++) {
         if (values[i] / avrg < 0.5 || values[i] / avrg > 1.5) return false;
     }
     return true;
@@ -668,52 +694,54 @@ function TwoOfFiveStartEnd(values, start) {
     if (values.length < 5 || values.length > 6) return false;
     var maximum = 0;
     var TwoOfFiveMax = [0, 0];
-    for (var u = 0; u < values.length; u++) {
+    var u;
+    for (u = 0; u < values.length; u++) {
         if (values[u] > maximum) {
             maximum = values[u];
             TwoOfFiveMax[0] = u;
         }
     }
     maximum = 0;
-    for (var u = 0; u < values.length; u++) {
-        if (u == TwoOfFiveMax[0]) continue;
+    for (u = 0; u < values.length; u++) {
+        if (u === TwoOfFiveMax[0]) continue;
         if (values[u] > maximum) {
             maximum = values[u];
             TwoOfFiveMax[1] = u;
         }
     }
     if (start) {
-        return TwoOfFiveMax[0] + TwoOfFiveMax[1] == 2;
+        return TwoOfFiveMax[0] + TwoOfFiveMax[1] === 2;
     } else {
-        return TwoOfFiveMax[0] + TwoOfFiveMax[1] == 2;
+        return TwoOfFiveMax[0] + TwoOfFiveMax[1] === 2;
     }
 }
 
 function CheckInterleaved(values, start) {
     var average = 0;
-    for (var i = 0; i < values.length; i++) {
+    var i;
+    for (i = 0; i < values.length; i++) {
         average += values[i];
     }
     average /= 4;
     if (start) {
-        if (values.length != 4) return false;
-        for (var i = 0; i < values.length; i++) {
+        if (values.length !== 4) return false;
+        for (i = 0; i < values.length; i++) {
             if (values[i] / average < 0.5 || values[i] / average > 1.5) return false;
         }
         return true;
     } else {
-        if (values.length != 3) return false;
+        if (values.length !== 3) return false;
         var max = 0;
         var pos;
-        for (var i = 0; i < values.length; i++) {
+        for (i = 0; i < values.length; i++) {
             if (values[i] > max) {
                 max = values[i];
                 pos = i;
             }
         }
-        if (pos != 0) return false;
+        if (pos !== 0) return false;
         if (values[0] / average < 1.5 || values[0] / average > 2.5) return false;
-        for (var i = 1; i < values.length; i++) {
+        for (i = 1; i < values.length; i++) {
             if (values[i] / average < 0.5 || values[i] / average > 1.5) return false;
         }
         return true;
@@ -727,29 +755,30 @@ function BinaryConfiguration(binaryString, type) {
     var bars;
     var len;
     var totalBars;
-    if (type == "Code128" || type == "Code93") {
+    var i;
+    if (type === "Code128" || type === "Code93") {
         totalBars = 6;
         len = binaryString[0];
-        if (type == "Code128") len /= 2;
-        for (var i = 0; i < binaryString.length; i++) {
+        if (type === "Code128") len /= 2;
+        for (i = 0; i < binaryString.length; i++) {
             if (binaryString[i] > len * 6) {
                 binaryString.splice(i, binaryString.length);
                 break;
             }
         }
         do {
-            if (binaryString.length == 7 && type == "Code128") {
+            if (binaryString.length === 7 && type === "Code128") {
                 result.push(binaryString.splice(0, binaryString.length));
             } else {
                 result.push(binaryString.splice(0, totalBars));
             }
-            if (type == "Code93" && binaryString.length < 6) binaryString.splice(0, totalBars);
+            if (type === "Code93" && binaryString.length < 6) binaryString.splice(0, totalBars);
         } while (binaryString.length > 0);
     }
-    if (type == "Code39") {
+    if (type === "Code39") {
         totalBars = 9;
         len = binaryString[0];
-        for (var i = 0; i < binaryString.length; i++) {
+        for (i = 0; i < binaryString.length; i++) {
             if (binaryString[i] > len * 5) {
                 binaryString.splice(i, binaryString.length);
                 break;
@@ -760,31 +789,31 @@ function BinaryConfiguration(binaryString, type) {
             binaryString.splice(0, 1);
         } while (binaryString.length > 0);
     }
-    if (type == "EAN-13") {
+    if (type === "EAN-13") {
         totalBars = 4;
         len = binaryString[0];
         var secureCount = 0;
-        for (var i = 0; i < binaryString.length; i++) {
+        for (i = 0; i < binaryString.length; i++) {
             if (binaryString[i] > len * 6) {
                 binaryString.splice(i, binaryString.length);
                 break;
             }
         }
         if (CheckEan13(binaryString.splice(0, 3), false)) secureCount++;
-        var count = 0;
+        count = 0;
         do {
             result.push(binaryString.splice(0, totalBars));
             count++;
-            if (count == 6)
+            if (count === 6)
                 if (CheckEan13(binaryString.splice(0, 5), true)) secureCount++;
         } while (result.length < 12 && binaryString.length > 0);
         if (CheckEan13(binaryString.splice(0, 3), false)) secureCount++;
         if (secureCount < 2) return [];
     }
-    if (type == "2Of5") {
+    if (type === "2Of5") {
         totalBars = 5;
         len = binaryString[0] / 2;
-        for (var i = 0; i < binaryString.length; i++) {
+        for (i = 0; i < binaryString.length; i++) {
             if (binaryString[i] > len * 5) {
                 binaryString.splice(i, binaryString.length);
                 break;
@@ -794,18 +823,18 @@ function BinaryConfiguration(binaryString, type) {
         result.push(temp);
         do {
             binTemp = [];
-            for (var i = 0; i < totalBars; i++) {
+            for (i = 0; i < totalBars; i++) {
                 binTemp.push(binaryString.splice(0, 1)[0]);
-                binaryString.splice(0, 1);
+                // binaryString.splice(0, 1)[0];
             }
             result.push(binTemp);
-            if (binaryString.length == 5) result.push(binaryString.splice(0, 5));
+            if (binaryString.length === 5) result.push(binaryString.splice(0, 5));
         } while (binaryString.length > 0);
     }
-    if (type == "Inter2Of5") {
+    if (type === "Inter2Of5") {
         totalBars = 5;
         len = binaryString[0];
-        for (var i = 0; i < binaryString.length; i++) {
+        for (i = 0; i < binaryString.length; i++) {
             if (binaryString[i] > len * 5) {
                 binaryString.splice(i, binaryString.length);
                 break;
@@ -816,19 +845,19 @@ function BinaryConfiguration(binaryString, type) {
         do {
             binTemp = [];
             binTempWhite = [];
-            for (var i = 0; i < totalBars; i++) {
+            for (i = 0; i < totalBars; i++) {
                 binTemp.push(binaryString.splice(0, 1)[0]);
                 binTempWhite.push(binaryString.splice(0, 1)[0]);
             }
             result.push(binTemp);
             result.push(binTempWhite);
-            if (binaryString.length == 3) result.push(binaryString.splice(0, 3));
+            if (binaryString.length === 3) result.push(binaryString.splice(0, 3));
         } while (binaryString.length > 0);
     }
-    if (type == "Codabar") {
+    if (type === "Codabar") {
         totalBars = 7;
         len = binaryString[0];
-        for (var i = 0; i < binaryString.length; i++) {
+        for (i = 0; i < binaryString.length; i++) {
             if (binaryString[i] > len * 5) {
                 binaryString.splice(i, binaryString.length);
                 break;
@@ -848,17 +877,19 @@ function BinaryString(img, type) {
     var container = 255;
     var count = 0;
     var format;
-    for (var j = 0; j < img.length - Image.width * 4; j += Image.width * 4) {
+    var tempString;
+    var j, i;
+    for (j = 0; j < img.length - Image.width * 4; j += Image.width * 4) {
         var SlicedArray = img.subarray(j, j + Image.width * 4);
         binaryString = [];
-        var i = 0;
-        while (SlicedArray[i] == 255) {
+        i = 0;
+        while (SlicedArray[i] === 255) {
             i += 4;
         }
         while (i < SlicedArray.length) {
             count = 0;
             container = SlicedArray[i];
-            while (SlicedArray[i] == container && i < SlicedArray.length) {
+            while (SlicedArray[i] === container && i < SlicedArray.length) {
                 count++;
                 i += 4;
             }
@@ -869,67 +900,67 @@ function BinaryString(img, type) {
         }
         var binaryHolder = binaryString.slice();
         var success = false;
-        for (var i = 0; i < FormatPriority.length; i++) {
+        for (i = 0; i < FormatPriority.length; i++) {
             binaryString = binaryHolder.slice();
             var first;
             var second;
             binaryString = BinaryConfiguration(binaryString, FormatPriority[i]);
-            if (FormatPriority[i] == "2Of5" || FormatPriority[i] == "Inter2Of5") {
+            if (FormatPriority[i] === "2Of5" || FormatPriority[i] === "Inter2Of5") {
                 first = binaryString.splice(0, 1)[0];
                 second = binaryString.splice(binaryString.length - 1, 1)[0];
             }
             binTemp = Distribution(binaryString, FormatPriority[i]);
-            if (FormatPriority[i] == "EAN-13") {
+            if (FormatPriority[i] === "EAN-13") {
                 binaryString = binTemp.data;
                 corrections = binTemp.correction;
             } else {
                 binaryString = binTemp;
             }
-            if (typeof binaryString == 'undefined') continue;
-            if (binaryString.length > 4 || (FormatPriority[i] == "Code39" && binaryString.length > 2)) {
-                if (FormatPriority[i] == "Code128") {
+            if (typeof binaryString === 'undefined') continue;
+            if (binaryString.length > 4 || (FormatPriority[i] === "Code39" && binaryString.length > 2)) {
+                if (FormatPriority[i] === "Code128") {
                     if (CheckCode128(binaryString)) {
                         binaryString = DecodeCode128(binaryString);
                         success = true;
                     }
-                } else if (FormatPriority[i] == "Code93") {
+                } else if (FormatPriority[i] === "Code93") {
                     if (CheckCode93(binaryString)) {
                         binaryString = DecodeCode93(binaryString);
                         success = true;
                     }
-                } else if (FormatPriority[i] == "Code39") {
+                } else if (FormatPriority[i] === "Code39") {
                     if (CheckCode39(binaryString)) {
                         binaryString = DecodeCode39(binaryString);
                         success = true;
                     }
-                } else if (FormatPriority[i] == "EAN-13") {
-                    var tempString = DecodeEAN13(binaryString);
+                } else if (FormatPriority[i] === "EAN-13") {
+                    tempString = DecodeEAN13(binaryString);
                     if (tempString) {
-                        if (tempString.length === 13 || tempString.length === 7) {
+                        if (tempString.length === 13) {
                             binaryString = tempString;
                             success = true;
                         }
                     }
-                } else if (FormatPriority[i] == "2Of5" || FormatPriority[i] == "Inter2Of5") {
-                    if (FormatPriority[i] == "2Of5") {
-                        if (typeof first != 'undefined')
+                } else if (FormatPriority[i] === "2Of5" || FormatPriority[i] === "Inter2Of5") {
+                    if (FormatPriority[i] === "2Of5") {
+                        if (typeof first !== 'undefined')
                             if (!TwoOfFiveStartEnd(first, true)) continue;
-                        if (typeof second != 'undefined')
+                        if (typeof second !== 'undefined')
                             if (!TwoOfFiveStartEnd(second, false)) continue;
                     }
-                    if (FormatPriority[i] == "Inter2Of5") {
-                        if (typeof first != 'undefined')
+                    if (FormatPriority[i] === "Inter2Of5") {
+                        if (typeof first !== 'undefined')
                             if (!CheckInterleaved(first, true)) continue;
-                        if (typeof second != 'undefined')
+                        if (typeof second !== 'undefined')
                             if (!CheckInterleaved(second, false)) continue;
                     }
-                    var tempString = Decode2Of5(binaryString);
+                    tempString = Decode2Of5(binaryString);
                     if (tempString) {
                         binaryString = tempString;
                         success = true;
                     }
-                } else if (FormatPriority[i] == "Codabar") {
-                    var tempString = DecodeCodaBar(binaryString);
+                } else if (FormatPriority[i] === "Codabar") {
+                    tempString = DecodeCodaBar(binaryString);
                     if (tempString) {
                         binaryString = tempString;
                         success = true;
@@ -938,14 +969,14 @@ function BinaryString(img, type) {
             }
             if (success) {
                 format = FormatPriority[i];
-                if (format == "Inter2Of5") format = "Interleaved 2 of 5";
-                if (format == "2Of5") format = "Standard 2 of 5";
+                if (format === "Inter2Of5") format = "Interleaved 2 of 5";
+                if (format === "2Of5") format = "Standard 2 of 5";
                 break;
             }
         }
         if (success) break;
     }
-    if (format == "Code128") {
+    if (format === "Code128") {
         if (typeof binaryString.string === 'string') {
             return binaryString;
         } else {
@@ -955,7 +986,7 @@ function BinaryString(img, type) {
         }
     }
     if (typeof binaryString === 'string') {
-        if (format == "EAN-13") {
+        if (format === "EAN-13") {
             return {
                 string: binaryString,
                 format: format,
@@ -975,12 +1006,20 @@ function BinaryString(img, type) {
 }
 
 function Distribution(totalBinArray, type) {
-    var type = availableFormats.indexOf(type);
     var testData = 0;
     var result = [];
     var totalBars;
     var total;
     var maxLength;
+    var k, i, j;
+    var blackMax;
+    var whiteMax;
+    var wideAvrg;
+    var narrowAvrg;
+    var prevPos;
+    var wideValues;
+    var max;
+    type = availableFormats.indexOf(type);
     if (type === 0) {
         total = 11;
         totalBars = 6;
@@ -1000,29 +1039,28 @@ function Distribution(totalBinArray, type) {
         total = 7;
         totalBars = 4;
         maxLength = 4;
-    } else if (type == 6) {
+    } else if (type === 6) {
         totalBars = 7;
     }
-    for (var k = 0; k < totalBinArray.length; k++) {
+    for (k = 0; k < totalBinArray.length; k++) {
         var BinArray = totalBinArray[k];
         var sum = 0;
-        sum = 0;
         var counter = 0;
         var tempBin = [];
         var narrowArr = [];
         var wideArr = [];
-        if (type == 6) {
+        if (type === 6) {
             var upperTolerance = 1.5;
             var lowerTolerance = 1 / 2;
-            if (BinArray.length != 7) return [];
-            if (k == 0 || k == totalBinArray.length - 1) {
-                var whiteMax = [
+            if (BinArray.length !== 7) return [];
+            if (k === 0 || k === totalBinArray.length - 1) {
+                whiteMax = [
                     [0, 0],
                     [0, 0]
                 ];
-                var blackMax = [0, 0];
-                for (var i = 0; i < BinArray.length; i++) {
-                    if (i % 2 == 0) {
+                blackMax = [0, 0];
+                for (i = 0; i < BinArray.length; i++) {
+                    if (i % 2 === 0) {
                         if (BinArray[i] > blackMax[0]) {
                             blackMax[0] = BinArray[i];
                             blackMax[1] = i;
@@ -1030,47 +1068,47 @@ function Distribution(totalBinArray, type) {
                     } else {
                         if (BinArray[i] > whiteMax[0][0]) {
                             whiteMax[0][0] = BinArray[i];
-                            var prevPos = whiteMax[0][1];
+                            prevPos = whiteMax[0][1];
                             whiteMax[0][1] = i;
                             i = prevPos - 1;
                             continue;
                         }
-                        if (BinArray[i] > whiteMax[1][0] && i != whiteMax[0][1]) {
+                        if (BinArray[i] > whiteMax[1][0] && i !== whiteMax[0][1]) {
                             whiteMax[1][0] = BinArray[i];
                             whiteMax[1][1] = i;
                         }
                     }
                 }
                 if (SecureCodabar) {
-                    var wideAvrg = whiteMax[0][0] + whiteMax[1][0] + blackMax[0];
+                    wideAvrg = whiteMax[0][0] + whiteMax[1][0] + blackMax[0];
                     wideAvrg /= 3;
-                    var wideValues = [whiteMax[0][0], whiteMax[1][0], blackMax[0]];
-                    for (var i = 0; i < wideValues.length; i++) {
+                    wideValues = [whiteMax[0][0], whiteMax[1][0], blackMax[0]];
+                    for (i = 0; i < wideValues.length; i++) {
                         if (wideValues[i] / wideAvrg > upperTolerance || wideValues[i] / wideAvrg < lowerTolerance) return [];
                     }
-                    var narrowAvrg = 0;
-                    for (var i = 0; i < BinArray.length; i++) {
-                        if (i == blackMax[1] || i == whiteMax[0][1] || i == whiteMax[1][1]) continue;
+                    narrowAvrg = 0;
+                    for (i = 0; i < BinArray.length; i++) {
+                        if (i === blackMax[1] || i === whiteMax[0][1] || i === whiteMax[1][1]) continue;
                         narrowAvrg += BinArray[i];
                     }
                     narrowAvrg /= 4;
-                    for (var i = 0; i < BinArray.length; i++) {
-                        if (i == blackMax[1] || i == whiteMax[0][1] || i == whiteMax[1][1]) continue;
+                    for (i = 0; i < BinArray.length; i++) {
+                        if (i === blackMax[1] || i === whiteMax[0][1] || i === whiteMax[1][1]) continue;
                         if (BinArray[i] / narrowAvrg > upperTolerance || BinArray[i] / narrowAvrg < lowerTolerance) return [];
                     }
                 }
-                for (var i = 0; i < BinArray.length; i++) {
-                    if (i == blackMax[1] || i == whiteMax[0][1] || i == whiteMax[1][1]) {
+                for (i = 0; i < BinArray.length; i++) {
+                    if (i === blackMax[1] || i === whiteMax[0][1] || i === whiteMax[1][1]) {
                         tempBin.push(1);
                     } else {
                         tempBin.push(0);
                     }
                 }
             } else {
-                var blackMax = [0, 0];
-                var whiteMax = [0, 0];
-                for (var i = 0; i < BinArray.length; i++) {
-                    if (i % 2 == 0) {
+                blackMax = [0, 0];
+                whiteMax = [0, 0];
+                for (i = 0; i < BinArray.length; i++) {
+                    if (i % 2 === 0) {
                         if (BinArray[i] > blackMax[0]) {
                             blackMax[0] = BinArray[i];
                             blackMax[1] = i;
@@ -1087,40 +1125,40 @@ function Distribution(totalBinArray, type) {
                     blackMax = [tempArray, [0, 0],
                         [0, 0]
                     ];
-                    for (var i = 0; i < BinArray.length; i++) {
-                        if (i % 2 == 0) {
-                            if (BinArray[i] > blackMax[1][0] && i != blackMax[0][1]) {
+                    for (i = 0; i < BinArray.length; i++) {
+                        if (i % 2 === 0) {
+                            if (BinArray[i] > blackMax[1][0] && i !== blackMax[0][1]) {
                                 blackMax[1][0] = BinArray[i];
-                                var prevPos = blackMax[1][1];
+                                prevPos = blackMax[1][1];
                                 blackMax[1][1] = i;
                                 i = prevPos - 1;
                                 continue;
                             }
-                            if (BinArray[i] > blackMax[2][0] && i != blackMax[0][1] && i != blackMax[1][1]) {
+                            if (BinArray[i] > blackMax[2][0] && i !== blackMax[0][1] && i !== blackMax[1][1]) {
                                 blackMax[2][0] = BinArray[i];
                                 blackMax[2][1] = i;
                             }
                         }
                     }
                     if (SecureCodabar) {
-                        var wideAvrg = blackMax[0][0] + blackMax[1][0] + blackMax[2][0];
+                        wideAvrg = blackMax[0][0] + blackMax[1][0] + blackMax[2][0];
                         wideAvrg /= 3;
-                        for (var i = 0; i < blackMax.length; i++) {
+                        for (i = 0; i < blackMax.length; i++) {
                             if (blackMax[i][0] / wideAvrg > upperTolerance || blackMax[i][0] / wideAvrg < lowerTolerance) return [];
                         }
-                        var narrowAvrg = 0;
-                        for (var i = 0; i < BinArray.length; i++) {
-                            if (i == blackMax[0][1] || i == blackMax[1][1] || i == blackMax[2][1]) continue;
+                        narrowAvrg = 0;
+                        for (i = 0; i < BinArray.length; i++) {
+                            if (i === blackMax[0][1] || i === blackMax[1][1] || i === blackMax[2][1]) continue;
                             narrowAvrg += BinArray[i];
                         }
                         narrowAvrg /= 4;
-                        for (var i = 0; i < BinArray.length; i++) {
-                            if (i == blackMax[0][1] || i == blackMax[1][1] || i == blackMax[2][1]) continue;
+                        for (i = 0; i < BinArray.length; i++) {
+                            if (i === blackMax[0][1] || i === blackMax[1][1] || i === blackMax[2][1]) continue;
                             if (BinArray[i] / narrowAvrg > upperTolerance || BinArray[i] / narrowAvrg < lowerTolerance) return [];
                         }
                     }
-                    for (var i = 0; i < BinArray.length; i++) {
-                        if (i == blackMax[0][1] || i == blackMax[1][1] || i == blackMax[2][1]) {
+                    for (i = 0; i < BinArray.length; i++) {
+                        if (i === blackMax[0][1] || i === blackMax[1][1] || i === blackMax[2][1]) {
                             tempBin.push(1);
                         } else {
                             tempBin.push(0);
@@ -1128,23 +1166,23 @@ function Distribution(totalBinArray, type) {
                     }
                 } else {
                     if (SecureCodabar) {
-                        var wideAvrg = blackMax[0] + whiteMax[0];
+                        wideAvrg = blackMax[0] + whiteMax[0];
                         wideAvrg /= 2;
                         if (blackMax[0] / wideAvrg > 1.5 || blackMax[0] / wideAvrg < 0.5) return [];
                         if (whiteMax[0] / wideAvrg > 1.5 || whiteMax[0] / wideAvrg < 0.5) return [];
-                        var narrowAvrg = 0;
-                        for (var i = 0; i < BinArray.length; i++) {
-                            if (i == blackMax[1] || i == whiteMax[1]) continue;
+                        narrowAvrg = 0;
+                        for (i = 0; i < BinArray.length; i++) {
+                            if (i === blackMax[1] || i === whiteMax[1]) continue;
                             narrowAvrg += BinArray[i];
                         }
                         narrowAvrg /= 5;
-                        for (var i = 0; i < BinArray.length; i++) {
-                            if (i == blackMax[1] || i == whiteMax[1]) continue;
+                        for (i = 0; i < BinArray.length; i++) {
+                            if (i === blackMax[1] || i === whiteMax[1]) continue;
                             if (BinArray[i] / narrowAvrg > upperTolerance || BinArray[i] / narrowAvrg < lowerTolerance) return [];
                         }
                     }
-                    for (var i = 0; i < BinArray.length; i++) {
-                        if (i == blackMax[1] || i == whiteMax[1]) {
+                    for (i = 0; i < BinArray.length; i++) {
+                        if (i === blackMax[1] || i === whiteMax[1]) {
                             tempBin.push(1);
                         } else {
                             tempBin.push(0);
@@ -1155,42 +1193,42 @@ function Distribution(totalBinArray, type) {
             result.push(tempBin);
             continue;
         }
-        if (type == 4 || type == 5) {
-            var max = [
+        if (type === 4 || type === 5) {
+            max = [
                 [0, 0],
                 [0, 0]
             ];
-            for (var i = 0; i < BinArray.length; i++) {
+            for (i = 0; i < BinArray.length; i++) {
                 if (!isFinite(BinArray[i])) return [];
                 if (BinArray[i] > max[0][0]) {
                     max[0][0] = BinArray[i];
-                    var prevPos = max[0][1];
+                    prevPos = max[0][1];
                     max[0][1] = i;
                     i = prevPos - 1;
                 }
-                if (BinArray[i] > max[1][0] && i != max[0][1]) {
+                if (BinArray[i] > max[1][0] && i !== max[0][1]) {
                     max[1][0] = BinArray[i];
                     max[1][1] = i;
                 }
             }
             if (Secure2Of5) {
-                var wideAvrg = max[0][0] + max[1][0];
+                wideAvrg = max[0][0] + max[1][0];
                 wideAvrg /= 2;
                 if (max[0][0] / wideAvrg > 1.3 || max[0][0] / wideAvrg < 0.7) return [];
                 if (max[1][0] / wideAvrg > 1.3 || max[1][0] / wideAvrg < 0.7) return [];
-                var narrowAvrg = 0;
-                for (var i = 0; i < BinArray.length; i++) {
-                    if (i == max[0][1] || i == max[1][1]) continue;
+                narrowAvrg = 0;
+                for (i = 0; i < BinArray.length; i++) {
+                    if (i === max[0][1] || i === max[1][1]) continue;
                     narrowAvrg += BinArray[i];
                 }
                 narrowAvrg /= 3;
-                for (var i = 0; i < BinArray.length; i++) {
-                    if (i == max[0][1] || i == max[1][1]) continue;
+                for (i = 0; i < BinArray.length; i++) {
+                    if (i === max[0][1] || i === max[1][1]) continue;
                     if (BinArray[i] / narrowAvrg > 1.3 || BinArray[i] / narrowAvrg < 0.7) return [];
                 }
             }
-            for (var i = 0; i < BinArray.length; i++) {
-                if (i == max[0][1] || i == max[1][1]) {
+            for (i = 0; i < BinArray.length; i++) {
+                if (i === max[0][1] || i === max[1][1]) {
                     tempBin.push(1);
                     continue;
                 }
@@ -1205,20 +1243,20 @@ function Distribution(totalBinArray, type) {
         }
         if (type === 2) {
             var indexCount = [];
-            var blackMax = [
+            blackMax = [
                 [0, 0],
                 [0, 0]
             ];
-            var whiteMax = [0, 0];
-            for (var j = 0; j < BinArray.length; j++) {
-                if (j % 2 == 0) {
+            whiteMax = [0, 0];
+            for (j = 0; j < BinArray.length; j++) {
+                if (j % 2 === 0) {
                     if (BinArray[j] > blackMax[0][0]) {
                         blackMax[0][0] = BinArray[j];
-                        var prevPos = blackMax[0][1];
+                        prevPos = blackMax[0][1];
                         blackMax[0][1] = j;
                         j = prevPos;
                     }
-                    if (BinArray[j] > blackMax[1][0] && j != blackMax[0][1]) {
+                    if (BinArray[j] > blackMax[1][0] && j !== blackMax[0][1]) {
                         blackMax[1][0] = BinArray[j];
                         blackMax[1][1] = j;
                     }
@@ -1234,38 +1272,38 @@ function Distribution(totalBinArray, type) {
                     [0, 0],
                     [0, 0]
                 ];
-                for (var j = 0; j < BinArray.length; j++) {
-                    if (j % 2 != 0) {
-                        if (BinArray[j] > blackMax[0][0] && j != whiteMax[1]) {
+                for (j = 0; j < BinArray.length; j++) {
+                    if (j % 2 !== 0) {
+                        if (BinArray[j] > blackMax[0][0] && j !== whiteMax[1]) {
                             blackMax[0][0] = BinArray[j];
-                            var prevPos = blackMax[0][1];
+                            prevPos = blackMax[0][1];
                             blackMax[0][1] = j;
                             j = prevPos;
                         }
-                        if (BinArray[j] > blackMax[1][0] && j != blackMax[0][1] && j != whiteMax[1]) {
+                        if (BinArray[j] > blackMax[1][0] && j !== blackMax[0][1] && j !== whiteMax[1]) {
                             blackMax[1][0] = BinArray[j];
                             blackMax[1][1] = j;
                         }
                     }
                 }
             }
-            var wideAvrg = blackMax[0][0] + blackMax[1][0] + whiteMax[0];
+            wideAvrg = blackMax[0][0] + blackMax[1][0] + whiteMax[0];
             wideAvrg /= 3;
             if (blackMax[0][0] / wideAvrg > 1.6 || blackMax[0][0] / wideAvrg < 0.4) return [];
             if (blackMax[1][0] / wideAvrg > 1.6 || blackMax[1][0] / wideAvrg < 0.4) return [];
             if (whiteMax[0] / wideAvrg > 1.6 || whiteMax[0] / wideAvrg < 0.4) return [];
-            var narrowAvrg = 0;
-            for (var i = 0; i < BinArray.length; i++) {
-                if (i == blackMax[0][1] || i == blackMax[1][1] || i == whiteMax[1]) continue;
+            narrowAvrg = 0;
+            for (i = 0; i < BinArray.length; i++) {
+                if (i === blackMax[0][1] || i === blackMax[1][1] || i === whiteMax[1]) continue;
                 narrowAvrg += BinArray[i];
             }
             narrowAvrg /= 6;
-            for (var i = 0; i < BinArray.length; i++) {
-                if (i == blackMax[0][1] || i == blackMax[1][1] || i == whiteMax[1]) continue;
+            for (i = 0; i < BinArray.length; i++) {
+                if (i === blackMax[0][1] || i === blackMax[1][1] || i === whiteMax[1]) continue;
                 if (BinArray[i] / narrowAvrg > 1.6 || BinArray[i] / narrowAvrg < 0.4) return [];
             }
-            for (var j = 0; j < BinArray.length; j++) {
-                if (j == blackMax[0][1] || j == blackMax[1][1] || j == whiteMax[1]) {
+            for (j = 0; j < BinArray.length; j++) {
+                if (j === blackMax[0][1] || j === blackMax[1][1] || j === whiteMax[1]) {
                     tempBin.push(2);
                 } else {
                     tempBin.push(1);
@@ -1274,39 +1312,39 @@ function Distribution(totalBinArray, type) {
             result.push(tempBin);
             continue;
         }
-        if (type == 3) {
-            var max = [
+        if (type === 3) {
+            max = [
                 [0, 0],
                 [0, 0],
                 [0, 0]
             ];
-            for (var j = 0; j < BinArray.length; j++) {
+            for (j = 0; j < BinArray.length; j++) {
                 if (BinArray[j] > max[0][0]) {
                     max[0][0] = BinArray[j];
-                    var prevPos = max[0][1];
+                    prevPos = max[0][1];
                     max[0][1] = j;
                     j = prevPos;
                 }
-                if (BinArray[j] > max[1][0] && j != max[0][1]) {
+                if (BinArray[j] > max[1][0] && j !== max[0][1]) {
                     max[1][0] = BinArray[j];
-                    var prevPos = max[1][1];
+                    prevPos = max[1][1];
                     max[1][1] = j;
                     j = prevPos;
                 }
-                if (BinArray[j] > max[2][0] && j != max[0][1] && j != max[1][1]) {
+                if (BinArray[j] > max[2][0] && j !== max[0][1] && j !== max[1][1]) {
                     max[2][0] = BinArray[j];
                     max[2][1] = j;
                 }
             }
             if (max[0][0] / max[1][0] >= 3) {
-                var narrowAvrg = 0;
-                for (var j = 0; j < BinArray.length; j++) {
-                    if (j == max[0][1]) continue;
+                narrowAvrg = 0;
+                for (j = 0; j < BinArray.length; j++) {
+                    if (j === max[0][1]) continue;
                     narrowAvrg += BinArray[j];
                 }
                 narrowAvrg /= 3;
-                for (var j = 0; j < BinArray.length; j++) {
-                    if (j == max[0][1]) continue;
+                for (j = 0; j < BinArray.length; j++) {
+                    if (j === max[0][1]) continue;
                     if (BinArray[j] / narrowAvrg < 0.02 || BinArray[j] / narrowAvrg > 3) return {
                         data: [],
                         correction: 0
@@ -1316,8 +1354,8 @@ function Distribution(totalBinArray, type) {
                     data: [],
                     correction: 0
                 };
-                for (var j = 0; j < BinArray.length; j++) {
-                    if (j == max[0][1]) {
+                for (j = 0; j < BinArray.length; j++) {
+                    if (j === max[0][1]) {
                         tempBin.push(4);
                     } else {
                         tempBin.push(1);
@@ -1325,7 +1363,7 @@ function Distribution(totalBinArray, type) {
                 }
                 result.push(tempBin);
             } else if (max[0][0] / max[2][0] > 2) {
-                var wideAvrg = max[0][0] + max[1][0];
+                wideAvrg = max[0][0] + max[1][0];
                 wideAvrg /= 5;
                 if (max[0][0] / (wideAvrg * 3) < 0.02 || max[0][0] / (wideAvrg * 3) > 3) return {
                     data: [],
@@ -1335,23 +1373,23 @@ function Distribution(totalBinArray, type) {
                     data: [],
                     correction: 0
                 };
-                var narrowAvrg = 0;
-                for (var j = 0; j < BinArray.length; j++) {
-                    if (j == max[0][1] || j == max[1][1]) continue;
+                narrowAvrg = 0;
+                for (j = 0; j < BinArray.length; j++) {
+                    if (j === max[0][1] || j === max[1][1]) continue;
                     narrowAvrg += BinArray[j];
                 }
                 narrowAvrg /= 2;
-                for (var j = 0; j < BinArray.length; j++) {
-                    if (j == max[0][1] || j == max[1][1]) continue;
+                for (j = 0; j < BinArray.length; j++) {
+                    if (j === max[0][1] || j === max[1][1]) continue;
                     if (BinArray[j] / narrowAvrg < 0.02 || BinArray[j] / narrowAvrg > 3) return {
                         data: [],
                         correction: 0
                     };
                 }
-                for (var j = 0; j < BinArray.length; j++) {
-                    if (j == max[0][1]) {
+                for (j = 0; j < BinArray.length; j++) {
+                    if (j === max[0][1]) {
                         tempBin.push(3);
-                    } else if (j == max[1][1]) {
+                    } else if (j === max[1][1]) {
                         tempBin.push(2);
                     } else {
                         tempBin.push(1);
@@ -1359,36 +1397,36 @@ function Distribution(totalBinArray, type) {
                 }
                 result.push(tempBin);
             } else {
-                if (max[0][1] % 2 == max[1][1] % 2 && max[0][1] % 2 == max[2][1] % 2) {
+                if (max[0][1] % 2 === max[1][1] % 2 && max[0][1] % 2 === max[2][1] % 2) {
                     var modMem = max[0][1] % 2;
                     max[2] = [0, 0];
-                    for (var j = 0; j < BinArray.length; j++) {
-                        if (j % 2 == modMem) continue;
+                    for (j = 0; j < BinArray.length; j++) {
+                        if (j % 2 === modMem) continue;
                         if (BinArray[j] > max[2][0]) {
                             max[2][0] = BinArray[j];
                             max[2][1] = j;
                         }
                     }
                 }
-                var wideAvrg = max[0][0] + max[1][0] + max[2][0];
+                wideAvrg = max[0][0] + max[1][0] + max[2][0];
                 wideAvrg /= 3;
-                for (var j = 0; j < max.length; j++) {
+                for (j = 0; j < max.length; j++) {
                     if (max[j][0] / wideAvrg < 0.02 || max[j][0] / wideAvrg > 3) return {
                         data: [],
                         correction: 0
                     };
                 }
                 var narrow = 0;
-                for (var j = 0; j < BinArray.length; j++) {
-                    if (j == max[0][1] || j == max[1][1] || j == max[2][1]) continue;
+                for (j = 0; j < BinArray.length; j++) {
+                    if (j === max[0][1] || j === max[1][1] || j === max[2][1]) continue;
                     narrow = BinArray[j];
                 }
                 if (wideAvrg / narrow < 0.02 || wideAvrg / narrow > 3) return {
                     data: [],
                     correction: 0
                 };
-                for (var j = 0; j < BinArray.length; j++) {
-                    if (j == max[0][1] || j == max[1][1] || j == max[2][1]) {
+                for (j = 0; j < BinArray.length; j++) {
+                    if (j === max[0][1] || j === max[1][1] || j === max[2][1]) {
                         tempBin.push(2);
                     } else {
                         tempBin.push(1);
@@ -1396,9 +1434,9 @@ function Distribution(totalBinArray, type) {
                 }
                 result.push(tempBin);
             }
-            for (var j = 0; j < tempBin.length; j++) {
+            for (j = 0; j < tempBin.length; j++) {
                 testData += Math.abs(tempBin[j] - (BinArray[j] / sum) * total);
-            };
+            }
             continue;
         }
         counter = 0;
@@ -1413,15 +1451,15 @@ function Distribution(totalBinArray, type) {
             tempBin[counter] = Math.round(tempBin[counter]);
             counter++;
         }
-        if (type == 3) {
+        if (type === 3) {
             var checking = 0;
-            for (var i = 0; i < tempBin.length; i++) {
+            for (i = 0; i < tempBin.length; i++) {
                 checking += tempBin[i];
             }
             if (checking > 7) {
-                var max = 0;
+                max = 0;
                 var hitIndex = 0;
-                for (var i = 0; i < tempBin.length; i++) {
+                for (i = 0; i < tempBin.length; i++) {
                     if (tempBin[i] > max) {
                         max = tempBin[i];
                         hitIndex = i;
@@ -1430,14 +1468,14 @@ function Distribution(totalBinArray, type) {
                 tempBin[hitIndex] = max - (checking - 7);
             }
         }
-        if (type == 3) {
-            for (var i = 0; i < tempBin.length; i++) {
+        if (type === 3) {
+            for (i = 0; i < tempBin.length; i++) {
                 testData += Math.abs(tempBin[i] - (BinArray[i] / sum) * total);
-            };
+            }
         }
         result.push(tempBin);
     }
-    if (type == 3) {
+    if (type === 3) {
         return {
             data: result,
             correction: testData
@@ -1449,14 +1487,15 @@ function Distribution(totalBinArray, type) {
 
 function CheckCode128(string) {
     var checksum = string[string.length - 2].join("");
+    var i;
     checksum = Code128Encoding.value.indexOf(checksum);
-    if (checksum == -1) return false;
+    if (checksum === -1) return false;
     var summarizer = Code128Encoding.value.indexOf(string[0].join(""));
-    if (summarizer == -1) return false;
+    if (summarizer === -1) return false;
     var startChar = Code128Encoding[string[0].join("")];
-    if (typeof startChar == 'undefined') return false;
-    if (startChar != "A" && startChar != "B" && startChar != "C") return false;
-    for (var i = 1; i < (string.length - 2); i++) {
+    if (typeof startChar === 'undefined') return false;
+    if (startChar !== "A" && startChar !== "B" && startChar !== "C") return false;
+    for (i = 1; i < (string.length - 2); i++) {
         summarizer += Code128Encoding.value.indexOf(string[i].join("")) * i;
         if (Code128Encoding.value.indexOf(string[i].join("")) === -1) return false;
     }
@@ -1465,8 +1504,9 @@ function CheckCode128(string) {
 
 function Decode2Of5(string) {
     var result = "";
-    for (var i = 0; i < string.length; i++) {
-        if (TwoOfFiveEncoding.indexOf(string[i].join("")) == -1) return false;
+    var i;
+    for (i = 0; i < string.length; i++) {
+        if (TwoOfFiveEncoding.indexOf(string[i].join("")) === -1) return false;
         result += TwoOfFiveEncoding.indexOf(string[i].join(""));
     }
     return result;
@@ -1476,10 +1516,11 @@ function DecodeCodaBar(string) {
     var result = "";
     var start = string[0].join("");
     var end = string[string.length - 1].join("");
-    if (!(CodaBarEncoding[start] == "A" || CodaBarEncoding[start] == "B" || CodaBarEncoding[start] == "C" || CodaBarEncoding[start] == "D")) return false;
-    if (!(CodaBarEncoding[end] == "A" || CodaBarEncoding[end] == "B" || CodaBarEncoding[end] == "C" || CodaBarEncoding[end] == "D")) return false;
-    for (var i = 1; i < string.length - 1; i++) {
-        if (typeof CodaBarEncoding[string[i].join("")] == 'undefined') return false;
+    var i;
+    if (!(CodaBarEncoding[start] === "A" || CodaBarEncoding[start] === "B" || CodaBarEncoding[start] === "C" || CodaBarEncoding[start] === "D")) return false;
+    if (!(CodaBarEncoding[end] === "A" || CodaBarEncoding[end] === "B" || CodaBarEncoding[end] === "C" || CodaBarEncoding[end] === "D")) return false;
+    for (i = 1; i < string.length - 1; i++) {
+        if (typeof CodaBarEncoding[string[i].join("")] === 'undefined') return false;
         result += CodaBarEncoding[string[i].join("")];
     }
     return result;
@@ -1488,7 +1529,7 @@ function DecodeCodaBar(string) {
 function checkResultForEAN(resultArray) {
     var weight = 3;
     var sum = 0;
-    for (var i = resultArray.length - 2; i >= 0; i--) {
+    for (i = resultArray.length - 2; i >= 0; i--) {
         sum += resultArray[i] * weight;
         weight = weight === 3 ? 1 : 3;
     }
@@ -1507,27 +1548,28 @@ function DecodeEAN13(string) {
     var leftSide = string.slice(0, 6);
     var trigger = false;
     var rightSide = string.slice(6, string.length);
-    for (var i = 0; i < leftSide.length; i++) {
+    var i;
+    for (i = 0; i < leftSide.length; i++) {
         leftSide[i] = leftSide[i].join("");
-        if (leftSide[i].length != 4) {
+        if (leftSide[i].length !== 4) {
             trigger = true;
             break;
         }
     }
     if (trigger) return false;
-    for (var i = 0; i < rightSide.length; i++) {
+    for (i = 0; i < rightSide.length; i++) {
         rightSide[i] = rightSide[i].join("");
-        if (rightSide[i].length != 4) {
+        if (rightSide[i].length !== 4) {
             trigger = true;
             break;
         }
     }
     if (trigger) return false;
     var decodeFormat = [];
-    for (var i = 0; i < leftSide.length; i++) {
-        if (typeof EAN13Encoding["L"][leftSide[i]] != 'undefined') {
+    for (i = 0; i < leftSide.length; i++) {
+        if (typeof EAN13Encoding.L[leftSide[i]] !== 'undefined') {
             decodeFormat.push("L");
-        } else if (typeof EAN13Encoding["G"][leftSide[i]] != 'undefined') {
+        } else if (typeof EAN13Encoding.G[leftSide[i]] !== 'undefined') {
             decodeFormat.push("G");
         } else {
             trigger = true;
@@ -1536,20 +1578,20 @@ function DecodeEAN13(string) {
     }
     if (trigger) return false;
     var resultArray = [];
-    if (typeof EAN13Encoding.formats[decodeFormat.join("")] == 'undefined') return false;
+    if (typeof EAN13Encoding.formats[decodeFormat.join("")] === 'undefined') return false;
     resultArray.push(EAN13Encoding.formats[decodeFormat.join("")]);
-    for (var i = 0; i < leftSide.length; i++) {
-        if (typeof EAN13Encoding[decodeFormat[i]][leftSide[i]] == 'undefined') {
+    for (i = 0; i < leftSide.length; i++) {
+        if (typeof EAN13Encoding[decodeFormat[i]][leftSide[i]] === 'undefined') {
             trigger = true;
             break;
         }
         resultArray.push(EAN13Encoding[decodeFormat[i]][leftSide[i]]);
     }
     if (trigger) return false;
-    for (var i = 0; i < rightSide.length; i++) {
-        if (typeof EAN13Encoding["R"][rightSide[i]] != 'undefined') {
+    for (i = 0; i < rightSide.length; i++) {
+        if (typeof EAN13Encoding["R"][rightSide[i]] !== 'undefined') {
             resultArray.push(EAN13Encoding["R"][rightSide[i]]);
-        } else if (typeof EAN13Encoding["G"][rightSide[i]] != 'undefined') {
+        } else if (typeof EAN13Encoding["G"][rightSide[i]] !== 'undefined') {
             resultArray.push(EAN13Encoding["G"][rightSide[i]]);
         } else {
             trigger = true;
@@ -1558,7 +1600,7 @@ function DecodeEAN13(string) {
     }
     if (trigger) return false;
     var sum = md ? resultArray[0] : checkResultForEAN(resultArray.join(""), 1);
-    if (resultArray[resultArray.length - 1] == sum || resultArray[0] == sum) {
+    if (resultArray[resultArray.length - 1] === sum || resultArray[0] === sum) {
         return resultArray.join("");
     } else {
         return false;
@@ -1569,12 +1611,13 @@ function CheckCode93(string) {
     var checkOne = string[string.length - 3].join("");
     var checkTwo = string[string.length - 2].join("");
     var failSafe = true;
-    if (typeof Code93Encoding[checkOne] == 'undefined') return false;
-    if (typeof Code93Encoding[checkTwo] == 'undefined') return false;
+    if (typeof Code93Encoding[checkOne] === 'undefined') return false;
+    if (typeof Code93Encoding[checkTwo] === 'undefined') return false;
     var checkSum = Code93Encoding[checkOne].value;
     var weight = 1;
     var sum = 0;
-    for (var i = string.length - 4; i > 0; i--) {
+    var i;
+    for (i = string.length - 4; i > 0; i--) {
         failSafe = typeof Code93Encoding[string[i].join("")] === 'undefined' ? false : failSafe;
         if (!failSafe) break;
         sum += Code93Encoding[string[i].join("")].value * weight;
@@ -1588,7 +1631,7 @@ function CheckCode93(string) {
     sum = firstCheck;
     weight = 2;
     checkSum = Code93Encoding[checkTwo].value;
-    for (var i = string.length - 4; i > 0; i--) {
+    for (i = string.length - 4; i > 0; i--) {
         failSafe = typeof Code93Encoding[string[i].join("")] === 'undefined' ? false : failSafe;
         if (!failSafe) break;
         sum += Code93Encoding[string[i].join("")].value * weight;
@@ -1602,12 +1645,12 @@ function CheckCode93(string) {
 
 function CheckCode39(string) {
     var trigger = true;
-    if (typeof Code39Encoding[string[0].join("")] == 'undefined') return false;
-    if (Code39Encoding[string[0].join("")].character != "*") return false;
-    if (typeof Code39Encoding[string[string.length - 1].join("")] == 'undefined') return false;
-    if (Code39Encoding[string[string.length - 1].join("")].character != "*") return false;
-    for (var i = 1; i < string.length - 1; i++) {
-        if (typeof Code39Encoding[string[i].join("")] == 'undefined') {
+    if (typeof Code39Encoding[string[0].join("")] === 'undefined') return false;
+    if (Code39Encoding[string[0].join("")].character !== "*") return false;
+    if (typeof Code39Encoding[string[string.length - 1].join("")] === 'undefined') return false;
+    if (Code39Encoding[string[string.length - 1].join("")].character !== "*") return false;
+    for (i = 1; i < string.length - 1; i++) {
+        if (typeof Code39Encoding[string[i].join("")] === 'undefined') {
             trigger = false;
             break;
         }
@@ -1620,9 +1663,10 @@ function DecodeCode39(string) {
     var special = false;
     var character = "";
     var specialchar = "";
-    for (var i = 1; i < string.length - 1; i++) {
+    for (i = 1; i < string.length - 1; i++) {
         character = Code39Encoding[string[i].join("")].character;
-        if (character == "$" || character == "/" || character == "+" || character == "%") {
+        if (character === "$" || character === "/" || character === "+" || character === "%") {
+            // if next character exists => this a special character
             if (i + 1 < string.length - 1) {
                 special = true;
                 specialchar = character;
@@ -1630,7 +1674,7 @@ function DecodeCode39(string) {
             }
         }
         if (special) {
-            if (typeof ExtendedEncoding[specialchar + character] == 'undefined') {} else {
+            if (typeof ExtendedEncoding[specialchar + character] === 'undefined') {} else {
                 resultString += ExtendedEncoding[specialchar + character];
             }
             special = false;
@@ -1646,15 +1690,15 @@ function DecodeCode93(string) {
     var special = false;
     var character = "";
     var specialchar = "";
-    for (var i = 1; i < string.length - 3; i++) {
+    for (i = 1; i < string.length - 3; i++) {
         character = Code93Encoding[string[i].join("")].character;
-        if (character == "($)" || character == "(/)" || character == "(+)" || character == "(%)") {
+        if (character === "($)" || character === "(/)" || character === "(+)" || character === "(%)") {
             special = true;
             specialchar = character[1];
             continue;
         }
         if (special) {
-            if (typeof ExtendedEncoding[specialchar + character] == 'undefined') {} else {
+            if (typeof ExtendedEncoding[specialchar + character] === 'undefined') {} else {
                 resultString += ExtendedEncoding[specialchar + character];
             }
             special = false;
@@ -1670,22 +1714,24 @@ function DecodeCode128(string) {
     var symbol;
     var Code128Format = "Code128";
     var resultString = "";
-    for (var i = 1; i < (string.length - 2); i++) {
+    var i;
+    for (i = 1; i < (string.length - 2); i++) {
         symbol = Code128Encoding[string[i].join("")][set];
         switch (symbol) {
             case "FNC1":
-                if (i == 1) Code128Format = "GS1-128";
+                if (i === 1) Code128Format = "GS1-128";
+                break;
             case "FNC2":
             case "FNC3":
             case "FNC4":
                 break;
             case "SHIFT_B":
                 i++;
-                resultString += Code128Encoding[string[i].join("")]["B"];
+                resultString += Code128Encoding[string[i].join("")].B;
                 break;
             case "SHIFT_A":
                 i++;
-                resultString += Code128Encoding[string[i].join("")]["A"];
+                resultString += Code128Encoding[string[i].join("")].A;
                 break;
             case "Code_A":
                 set = "A";
@@ -1707,7 +1753,7 @@ function DecodeCode128(string) {
 }
 
 function checkFinalResult(result) {
-    for (var i = 0; i < result.length; i++) {
+    for (i = 0; i < result.length; i++) {
         if (result[i].Format === 'EAN-13') {
             if (result[i].Value.length === 7) {
                 result[i].Value = result[i].Value.substring(1, 7);
@@ -2755,6 +2801,8 @@ EAN13Encoding = {
     }
 };
 self.onmessage = function(e) {
+    var width;
+    var i;
     ScanImage = {
         data: new Uint8ClampedArray(e.data.scan),
         width: e.data.scanWidth,
@@ -2763,13 +2811,13 @@ self.onmessage = function(e) {
     switch (e.data.rotation) {
         case 8:
             ScanImage.data = Rotate(ScanImage.data, ScanImage.width, ScanImage.height, -90);
-            var width = e.data.scanWidth;
+            width = e.data.scanWidth;
             ScanImage.width = ScanImage.height;
             ScanImage.height = width;
             break;
         case 6:
             ScanImage.data = Rotate(ScanImage.data, ScanImage.width, ScanImage.height, 90);
-            var width = e.data.scanWidth;
+            width = e.data.scanWidth;
             ScanImage.width = ScanImage.height;
             ScanImage.height = width;
             break;
@@ -2793,13 +2841,13 @@ self.onmessage = function(e) {
     SecureCodabar = true;
     Secure2Of5 = true;
     Multiple = true;
-    if (typeof e.data.multiple != 'undefined') {
+    if (typeof e.data.multiple !== 'undefined') {
         Multiple = e.data.multiple;
     }
-    if (typeof e.data.decodeFormats != 'undefined') {
+    if (typeof e.data.decodeFormats !== 'undefined') {
         decodeFormats = e.data.decodeFormats;
     }
-    for (var i = 0; i < decodeFormats.length; i++) {
+    for (i = 0; i < decodeFormats.length; i++) {
         FormatPriority.push(decodeFormats[i]);
     }
     CreateTable();
