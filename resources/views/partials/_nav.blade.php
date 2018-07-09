@@ -22,7 +22,8 @@
       </li>
       <div class="dropdown-divider"></div>
       @if(Auth::check())
-      <div class="row">
+    </ul>
+    <ul class="navbar-nav float-right">
       <li class="nav-item">
       <a class="nav-link">{{Auth::user()->name}}</a>
       </li>
@@ -36,6 +37,7 @@
             {{ csrf_field() }}
           </form>
       </li>
+    </ul>
       @else
         </ul>
         <ul class="navbar-nav ml-auto">

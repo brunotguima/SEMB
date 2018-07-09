@@ -12,6 +12,9 @@
             <th>ID</th>
             <th>Nome</th>
             <th>Telefone</th>
+            <th></th>
+            <th></th>
+            <th></th>
         </thead>
         <tbody>
             @foreach($clientes as $cliente)
